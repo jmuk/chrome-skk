@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <title>Chrome Input Method test page</title>
+    <script type="text/javascript">
+      var srcs = [
+        '../extension/skk.js',
+        '../extension/ascii_modes.js',
+        '../extension/roman_table.js',
+        '../extension/roman_modes.js',
+        '../extension/main.js',
+      ];
+    </script>
+    <script type="text/javascript" src="./mock.js"></script>
+  </head>
+  <body>
+    <h1>chrome.input.ime testpage</h1>
+    <div style="text-align: right; font-size: small">
+      see <a href="http://dev.chromium.org/developers/design-documents/extensions/proposed-changes/apis-under-development/input-method-editor">the proposal document</a>.
+    </div>
+    <div>
+      <span id="result"></span><span id="ime-composition"></span>
+    </div>
+  </body>
+</html>
