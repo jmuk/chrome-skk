@@ -13,6 +13,12 @@ function setComposition (
 	selectionEnd = -1;
     }
 
+    if (cursor && cursor >= 0 && cursor <= text.length) {
+	document.getElementById('result').style.borderRight = 'none';
+    } else {
+	document.getElementById('result').style.borderRight = 'solid 1px';
+    }
+
     var segment_index = 0;
     var span = null;
     for (var i = 0; i < text.length; i++) {
@@ -43,6 +49,11 @@ function setComposition (
 	    span.firstChild.textContent += c;
 	}
     }
+
+    if (cursor == text.length) {
+	composition.lastChild.style.borderRight = 'solid 1px';
+    }
+
     if (callback) {
 	callback(true);
     }
@@ -50,19 +61,13 @@ function setComposition (
 
 function clearComposition(ctx, callback) {
     document.getElementById('ime-composition').innerHTML = '';
+    document.getElementById('result').style.borderRight = 'solid 1px';
     if (callback) {
 	callback(true);
     }
 }
 
 function commitText (ctx, text, callback) {
-    document.getElementById('ime-composition').innerHTML = '';
-    if (text.length == 0) {
-	if (callback) {
-	    cakkback(true);
-	}
-	return;
-    }
     var segments = [];
     for (var i = 0; i < text.length; i++) {
 	var c = text[i];
@@ -143,6 +148,7 @@ var mockContext = {
 };
 
 window.addEventListener('load', function() {
+    document.getElementById('result').style.borderRight = 'solid 1px';
     chrome.input.ime.onActivate.emit(mockEngineId);
     chrome.input.ime.onFocus.emit(mockEngineId, mockContext);
 });
