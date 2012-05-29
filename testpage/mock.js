@@ -202,12 +202,14 @@ window.addEventListener('load', function() {
     div.style.left = '-9999px';
     document.body.appendChild(div);
     div.focus();
-    div.addEventListener('keydown', function(ev) {
+    div.onkeydown = function(ev) {
 	emitKeyEvent(ev);
-    });
-    div.addEventListener('keyup', function(ev) {
+	return false;
+    };
+    div.onkeyup = function(ev) {
 	emitKeyEvent(ev);
-    });
+	return false;
+    };
 });
 
 for (var i = 0; i < srcs.length; i++) {
