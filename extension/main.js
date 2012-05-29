@@ -1,3 +1,7 @@
+chrome.input.ime.onActivate.addListener(function(engineId) {
+    skk.initDictionary();
+});
+
 chrome.input.ime.onFocus.addListener(function(engineId, ctx) {
     skk.context = ctx;
 });
