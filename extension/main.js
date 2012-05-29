@@ -8,7 +8,7 @@ chrome.input.ime.onFocus.addListener(function(engineId, ctx) {
 
 chrome.input.ime.onKeyEvent.addListener(function(engineId, keyevent) {
     if (keyevent.type != 'keydown') {
-	return;
+        return;
     }
 
     skk.modes[skk.currentMode](keyevent);

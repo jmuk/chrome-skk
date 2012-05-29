@@ -33,30 +33,30 @@ var katakanaTable = {};
 function initRomanTable() {
     var youons = ['k', 's', 't', 'n', 'h', 'm', 'r', 'g', 'd', 'b', 'p'];
     function addYouon(youon, prefix, base) {
-	var mapping = {'a':'\u3083', 'i':'\u3043', 'u':'\U3085',
-		       'e':'\u3047', 'o':'\U3087'};
-	for (var sound in mapping) {
-	    var youon_char = mapping[sound];
-	    romanTable[youon + prefix + sound] = base + youon_char;
-	}
+        var mapping = {'a':'\u3083', 'i':'\u3043', 'u':'\U3085',
+                       'e':'\u3047', 'o':'\U3087'};
+        for (var sound in mapping) {
+            var youon_char = mapping[sound];
+            romanTable[youon + prefix + sound] = base + youon_char;
+        }
     }
     for (var i = 0; i < youons.length; i++) {
-	addYouon(youons[i], 'y', romanTable[youons[i] + 'i']);
+        addYouon(youons[i], 'y', romanTable[youons[i] + 'i']);
     }
 
     addYouon('t', 'h', '\u3066');
     addYouon('d', 'h', '\u3067');
 
     for (var key in romanTable) {
-	var hiragana = romanTable[key];
-	var katakana = '';
-	for (var i = 0; i < hiragana.length; i++) {
-	    var c = hiragana.charCodeAt(i);
-	    if (c > 0x3040 && c < 0x30a0) {
-		katakana += String.fromCharCode(c + 0x60);
-	    }
-	}
-	katakanaTable[key] = katakana;
+        var hiragana = romanTable[key];
+        var katakana = '';
+        for (var i = 0; i < hiragana.length; i++) {
+            var c = hiragana.charCodeAt(i);
+            if (c > 0x3040 && c < 0x30a0) {
+                katakana += String.fromCharCode(c + 0x60);
+            }
+        }
+        katakanaTable[key] = katakana;
     }
 };
 
