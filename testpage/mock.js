@@ -29,10 +29,10 @@ function setComposition (
 	    if (i == cursor) {
 		span.style.borderLeft = 'solid 1px';
 	    }
-	    if (i == selectionStart) {
+	    if (i >= selectionStart && i < selectionEnd) {
 		span.style.backgroundColor = 'skyblue';
 	    }
-	    if (i == segment.start) {
+	    if (i >= segment.start && i < segment.end) {
 		span.style.textDecoration = 'underline';
 	    }
 	    span.appendChild(document.createTextNode(c));

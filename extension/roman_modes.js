@@ -89,17 +89,18 @@ function romanInput(keyevent, table) {
 }
 
 function updatePreeditComposition() {
-    var preedit = '\u25bd' + skk.preedit + skk.roman;
+    var preedit = '\u25bd' + skk.preedit.slice(0, skk.caret) + skk.roman +
+        skk.preedit.slice(skk.caret);
     chrome.input.ime.setComposition(
-        skk.context, preedit, null, null, preedit.length,
+        skk.context, preedit, null, null, skk.caret + 1,
         [{start:0, end:preedit.length, style:'underline'}]);
 }
 
 function initPreedit() {
-    console.log(skk.preedit);
     if (skk.preedit.length > 0) {
         updatePreeditComposition();
     }
+    skk.caret = skk.preedit.length;
 }
 
 function preeditInput(keyevent) {
@@ -125,12 +126,31 @@ function preeditInput(keyevent) {
         return;
     }
 
+    if (keyevent.key == 'left' || (keyevent.key == 'b' && keyevent.ctrlKey)) {
+        if (skk.caret > 0) {
+            skk.caret--;
+        }
+        updatePreeditComposition();
+        return;
+    }
+
+    if (keyevent.key == 'right' || (keyevent.key == 'f' && keyevent.ctrlKey)) {
+        if (skk.caret < skk.preedit.length) {
+            skk.caret++;
+        }
+        updatePreeditComposition();
+        return;
+    }
+
     if (keyevent.key == 'backspace') {
         if (skk.roman.length > 0) {
             skk.roman = skk.roman.slice(0, skk.roman.length - 1);
-        } else if (skk.preedit.length > 0) {
-            skk.preedit = skk.preedit.slice(0, skk.preedit.length - 1);
+        } else if (skk.preedit.length > 0 && skk.caret > 0) {
+            skk.preedit = skk.preedit.slice(0, skk.caret - 1) +
+                skk.preedit.slice(skk.caret);
+            skk.caret--;
         } else {
+            chrome.input.ime.commitText(skk.context, skk.preedit);
             skk.switchMode('hiragana');
             updateRomanComposition();
             return;
@@ -145,7 +165,9 @@ function preeditInput(keyevent) {
     }
 
     processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
-        skk.preedit += text;
+        skk.preedit = skk.preedit.slice(0, skk.caret) +
+            text + skk.preedit.slice(skk.caret);
+        skk.caret += text.length;
     });
 
     if (keyevent.key == '>') {

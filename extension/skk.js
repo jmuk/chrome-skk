@@ -8,6 +8,7 @@ skk.currentMode = 'hiragana';
 skk.lookupCallbacks = {};
 skk.roman = '';
 skk.preedit = '';
+skk.caret = null;
 skk.entries = {};
 
 skk.initDictionary = function() {
