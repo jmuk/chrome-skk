@@ -9,7 +9,6 @@ function updateComposition() {
     var preedit = '\u25bc' + entry.word;
     if (entry.annotation) {
         preedit += ';' + entry.annotation;
-        console.log(preedit);
     }
     chrome.input.ime.setComposition(
         skk.context, preedit, 1, preedit.length, preedit.length,
@@ -19,7 +18,6 @@ function updateComposition() {
 function initConversion() {
     skk.lookup(skk.preedit, function(entries) {
         skk.entries = {index:0, entries:entries};
-        console.log(skk.entries);
         if (entries.length == 0) {
             return;
         }
@@ -43,13 +41,21 @@ function conversionMode(keyevent) {
             skk.switchMode('preedit');
         }
         updateComposition();
+    } else if (keyevent.key == 'shift' || keyevent.key == 'alt' ||
+               keyevent.key == 'ctrl') {
+        // do nothing.
     } else {
         chrome.input.ime.commitText(
             skk.context, skk.entries.entries[skk.entries.index].word);
         chrome.input.ime.clearComposition(skk.context);
-        skk.preedit = '';
-        skk.switchMode('hiragana');
-        skk.handleKeyEvent(keyevent);
+        if (keyevent.key == '>') {
+            skk.preedit = '>';
+            skk.switchMode('preedit');
+        } else {
+            skk.preedit = '';
+            skk.switchMode('hiragana');
+            skk.handleKeyEvent(keyevent);
+        }
     }
 }
 

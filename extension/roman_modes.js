@@ -71,7 +71,7 @@ function romanInput(keyevent, table) {
         skk.switchMode(
             (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
 	return;
-    } else if (keyevent.shiftKey || keyevent.key == 'Q') {
+    } else if (keyevent.shiftKey && keyevent.key >= 'A' && keyevent.key < 'Z') {
         skk.switchMode('preedit');
         skk.handleKeyEvent(keyevent);
         return;
@@ -96,6 +96,7 @@ function updatePreeditComposition() {
 }
 
 function initPreedit() {
+    console.log(skk.preedit);
     if (skk.preedit.length > 0) {
         updatePreeditComposition();
     }
@@ -146,6 +147,11 @@ function preeditInput(keyevent) {
     processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
         skk.preedit += text;
     });
+
+    if (keyevent.key == '>') {
+        skk.switchMode('conversion');
+        return;
+    }
 
     updatePreeditComposition();
 }

@@ -18,10 +18,10 @@ var romanTable = {
     'va':'\u3094\u3041', 'vi':'\u3094\u3043', 'vu':'\u3094\u3045', 've':'\u3094\u3047', 'vo':'\u3094\u3049',
     'fa':'\u3075\u3041', 'fi':'\u3075\u3043', 'fu':'\u3075', 'fe':'\u3075\u3047', 'fo':'\u3075\u3049',
 
-    'sha':'\u3057\u3083', 'shi':'\u3057', 'shu':'\u3057\U3085', 'she':'\u3057\u3047', 'sho':'\u3057\U3087',
-    'ja':'\u3058\u3083', 'ji':'\u3058', 'ju':'\u3058\u3085', 'je':'\u3058\u3047', 'jo':'\u3058\U3087',
-    'cha':'\u3061\u3083', 'chi':'\u3061', 'chu':'\u3061\U3085', 'che':'\u3061\u3047', 'cho':'\u3061\U3087',
-    'xya':'\u3083', 'xyu':'\U3085', 'xyo':'\U3087', 'xtu':'\u3063',
+    'sha':'\u3057\u3083', 'shi':'\u3057', 'shu':'\u3057\u3085', 'she':'\u3057\u3047', 'sho':'\u3057\u3087',
+    'ja':'\u3058\u3083', 'ji':'\u3058', 'ju':'\u3058\u3085', 'je':'\u3058\u3047', 'jo':'\u3058\u3087',
+    'cha':'\u3061\u3083', 'chi':'\u3061', 'chu':'\u3061\u3085', 'che':'\u3061\u3047', 'cho':'\u3061\u3087',
+    'xya':'\u3083', 'xyu':'\u3085', 'xyo':'\u3087', 'xtu':'\u3063',
 
     'nn':'\u3093',
 
@@ -33,8 +33,8 @@ var katakanaTable = {};
 function initRomanTable() {
     var youons = ['k', 's', 't', 'n', 'h', 'm', 'r', 'g', 'd', 'b', 'p'];
     function addYouon(youon, prefix, base) {
-        var mapping = {'a':'\u3083', 'i':'\u3043', 'u':'\U3085',
-                       'e':'\u3047', 'o':'\U3087'};
+        var mapping = {'a':'\u3083', 'i':'\u3043', 'u':'\u3085',
+                       'e':'\u3047', 'o':'\u3087'};
         for (var sound in mapping) {
             var youon_char = mapping[sound];
             romanTable[youon + prefix + sound] = base + youon_char;

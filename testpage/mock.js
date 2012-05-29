@@ -183,6 +183,9 @@ function emitKeyEvent(ev) {
     if (!key) {
 	return;
     }
+    if (key == 'SHIFT') {
+	key = 'shift';
+    }
     var keyEvent = {
 	type: ev.type,
 	key: key,
