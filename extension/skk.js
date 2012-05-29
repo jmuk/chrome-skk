@@ -6,6 +6,8 @@ var skk = {
 skk.modes = {}
 skk.currentMode = 'hiragana';
 skk.lookupCallbacks = {};
+skk.roman = '';
+skk.preedit = '';
 
 skk.initDictionary = function() {
     skk.dictWorker = new Worker('../extension/dictionary_syncer.js');
@@ -35,6 +37,8 @@ skk.registerMode = function(modeName, modeHandler) {
 
 skk.switchMode = function(newMode) {
     chrome.input.ime.clearComposition(skk.context);
+    skk.roman = '';
+    skk.preedit = '';
     skk.currentMode = newMode;
 };
 })()
