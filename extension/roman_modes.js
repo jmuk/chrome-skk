@@ -41,11 +41,27 @@ function processRoman(key, table, emitter) {
     }
 }
 
+function updateRomanComposition() {
+    if (skk.roman.length > 0) {
+        chrome.input.ime.setComposition(
+            skk.context, skk.roman, null, null, skk.roman.length,
+            [{start:0, end:skk.roman.length - 1, style:'underline'}]);
+    } else {
+        chrome.input.ime.clearComposition(skk.context);
+    }
+}
+
 function romanInput(keyevent, table) {
     if (keyevent.key == 'return') {
         chrome.input.ime.commitText(skk.context, '\n');
         return;
     }
+
+    if (keyevent.key == 'backspace') {
+        skk.roman = skk.roman.slice(0, skk.roman.length - 1);
+        updateRomanComposition();
+    }
+
     if (keyevent.key.length != 1) {
         // special keys -- ignore for now
         return;
@@ -57,7 +73,7 @@ function romanInput(keyevent, table) {
 	return;
     } else if (keyevent.shiftKey || keyevent.key == 'Q') {
         skk.switchMode('preedit');
-        preeditInput(keyevent);
+        skk.handleKeyEvent(keyevent);
         return;
     } else if (keyevent.key == 'l') {
         skk.switchMode('ascii');
@@ -70,25 +86,56 @@ function romanInput(keyevent, table) {
     processRoman(keyevent.key, table, function(text) {
         chrome.input.ime.commitText(skk.context, text);
     });
+}
 
-    if (skk.roman.length > 0) {
-        chrome.input.ime.setComposition(
-            skk.context, skk.roman, null, null, skk.roman.length,
-            [{start:0, end:skk.roman.length - 1, style:'underline'}]);
-    } else {
-        chrome.input.ime.clearComposition(skk.context);
+function updatePreeditComposition() {
+    var preedit = '\u25bd' + skk.preedit + skk.roman;
+    chrome.input.ime.setComposition(
+        skk.context, preedit, null, null, preedit.length,
+        [{start:0, end:preedit.length, style:'underline'}]);
+}
+
+function initPreedit() {
+    if (skk.preedit.length > 0) {
+        updatePreeditComposition();
     }
 }
 
 function preeditInput(keyevent) {
     if (keyevent.key == 'return') {
         chrome.input.ime.commitText(skk.context, skk.preedit);
+        skk.preedit = '';
         skk.switchMode('hiragana');
         return;
     }
 
     if (keyevent.key == 'escape') {
+        skk.preedit = '';
         skk.switchMode('hiragana');
+        return;
+    }
+
+    if (keyevent.key == ' ') {
+        if (skk.roman == 'n') {
+            skk.roman = '';
+            skk.preedit += romanTable['nn'];
+        }
+        skk.switchMode('conversion');
+        return;
+    }
+
+    if (keyevent.key == 'backspace') {
+        if (skk.roman.length > 0) {
+            skk.roman = skk.roman.slice(0, skk.roman.length - 1);
+        } else if (skk.preedit.length > 0) {
+            skk.preedit = skk.preedit.slice(0, skk.preedit.length - 1);
+        } else {
+            skk.switchMode('hiragana');
+            updateRomanComposition();
+            return;
+        }
+        updatePreeditComposition();
+        return;
     }
 
     if (keyevent.key.length != 1) {
@@ -100,10 +147,7 @@ function preeditInput(keyevent) {
         skk.preedit += text;
     });
 
-    var preedit = '\u25bd' + skk.preedit + skk.roman;
-    chrome.input.ime.setComposition(
-        skk.context, preedit, null, null, preedit.length,
-        [{start:0, end:preedit.length - 1, style:'underline'}]);
+    updatePreeditComposition();
 }
 
 skk.registerMode('hiragana', function(keyevent) {
@@ -112,5 +156,5 @@ skk.registerMode('hiragana', function(keyevent) {
 skk.registerMode('katakana', function(keyevent) {
     romanInput(keyevent, katakanaTable);
 });
-skk.registerMode('preedit', preeditInput);
+skk.registerMode('preedit', preeditInput, initPreedit);
 })() 

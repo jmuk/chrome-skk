@@ -8,7 +8,7 @@ function setComposition (
 	return;
     }
     if ((!selectionStart) || (!selectionEnd) ||
-	(selectionEnd >= selectionStart)) {
+	(selectionEnd < selectionStart)) {
 	selectionStart = -1;
 	selectionEnd = -1;
     }
@@ -23,7 +23,7 @@ function setComposition (
     var span = null;
     for (var i = 0; i < text.length; i++) {
 	var c = text[i];
-	segment = segments[segment_index]
+	var segment = segments[segment_index] || {start:-1, end:-1};
 	if (i == cursor || i == selectionStart || i == segment.start) {
 	    span = document.createElement('span');
 	    if (i == cursor) {
@@ -37,8 +37,8 @@ function setComposition (
 	    }
 	    span.appendChild(document.createTextNode(c));
 	    composition.appendChild(span);
-	} else if ((!span) || (i == (selectionEnd + 1)) ||
-		   (i == (segment.end + 1))) {
+	} else if ((!span) || (i == selectionEnd) ||
+		   (i == segment.end)) {
 	    span = document.createElement('span');
 	    span.appendChild(document.createTextNode(c));
 	    composition.appendChild(span);

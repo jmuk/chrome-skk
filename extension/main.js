@@ -11,6 +11,6 @@ chrome.input.ime.onKeyEvent.addListener(function(engineId, keyevent) {
         return;
     }
 
-    skk.modes[skk.currentMode](keyevent);
+    skk.handleKeyEvent(keyevent);
 });
 
