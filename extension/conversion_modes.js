@@ -1,64 +1,68 @@
 (function() {
 
-function updateComposition() {
+function updateComposition(skk) {
+    if (!skk.entries) {
+        return;
+    }
+
     var entry = skk.entries.entries[skk.entries.index];
     if (!entry) {
-        chrome.input.ime.clearComposition(skk.context);
+        skk.clearComposition();
     }
 
     var preedit = '\u25bc' + entry.word;
     if (entry.annotation) {
         preedit += ';' + entry.annotation;
     }
-    chrome.input.ime.setComposition(
-        skk.context, preedit, 1, preedit.length, preedit.length,
-        [{start:0, end:1, style:'underline'}]);
+    skk.setComposition(preedit, 1, preedit.length, preedit.length,
+                       [{start:0, end:1, style:'underline'}]);
 }
 
-function initConversion() {
+function initConversion(skk) {
     skk.lookup(skk.preedit, function(entries) {
         skk.entries = {index:0, entries:entries};
         if (entries.length == 0) {
             return;
         }
-
-        updateComposition();
+        updateComposition(skk);
     });
 }
 
-function conversionMode(keyevent) {
+function conversionMode(skk, keyevent) {
     if (keyevent.key == ' ') {
         skk.entries.index++;
         if (skk.entries.index >= skk.entries.entries.length) {
             // recursive word registration...
             skk.entries.index = 0;
         }
-        updateComposition();
     } else if (keyevent.key == 'x') {
         skk.entries.index--;
         if (skk.entries.index < 0) {
-            skk.entries = {};
+            skk.entries = null;
             skk.switchMode('preedit');
         }
-        updateComposition();
     } else if (keyevent.key == 'shift' || keyevent.key == 'alt' ||
                keyevent.key == 'ctrl') {
         // do nothing.
     } else {
-        chrome.input.ime.commitText(
-            skk.context, skk.entries.entries[skk.entries.index].word);
-        chrome.input.ime.clearComposition(skk.context);
+        skk.commitText(skk.entries.entries[skk.entries.index].word);
+        skk.clearComposition();
         if (keyevent.key == '>') {
             skk.preedit = '>';
+            skk.entries = null;
             skk.switchMode('preedit');
         } else {
             skk.preedit = '';
+            skk.entries = null;
             skk.switchMode('hiragana');
             skk.handleKeyEvent(keyevent);
         }
     }
 }
 
-skk.registerMode('conversion', conversionMode, initConversion);
-
+skk.registerMode('conversion', {
+    keyHandler: conversionMode,
+    initHandler: initConversion,
+    compositionHandler: updateComposition
+});
 })()

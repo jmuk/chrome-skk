@@ -1,31 +1,33 @@
 (function() {
-function asciiLikeMode(keyevent, conv) {
-    if (keyevent.ctrlKey && keyevent.key == 'j') {
-        skk.switchMode('hiragana');
-        return;
-    }
+function createAsciiLikeMode(conv) {
+    return function(skk, keyevent) {
+	if (keyevent.ctrlKey && keyevent.key == 'j') {
+            skk.switchMode('hiragana');
+            return;
+	}
 
-    if (keyevent.key == 'return') {
-        chrome.input.ime.commitText(skk.context, '\n');
-        return;
-    }
+	if (keyevent.key == 'return') {
+            skk.commitText('\n');
+            return;
+	}
 
-    if (keyevent.key.length > 1 ||
-        keyevent.altKey || keyevent.ctrlKey) {
-        chrome.input.ime.sendKeyEvent(skk.context, keyevent);
-        return;
-    }
+	if (keyevent.key.length > 1 ||
+            keyevent.altKey || keyevent.ctrlKey) {
+            skk.sendKeyEvent(keyevent);
+            return;
+	}
 
-    chrome.input.ime.commitText(skk.context, conv(keyevent.key));
+	skk.commitText(conv(keyevent.key));
+    }
 }
 
-skk.registerMode('ascii', function(keyevent) {
-    asciiLikeMode(keyevent, function(x) { return x; });
+skk.registerMode('ascii', {
+    keyHandler: createAsciiLikeMode(function(c) { return c; })
 });
 
-skk.registerMode('full-ascii', function(keyevent) {
-    asciiLikeMode(keyevent, function(c) {
-        return String.fromCharCode(c.charCodeAt(0) + 0xfee0);
-    });
+skk.registerMode('full-ascii', {
+    keyHandler: createAsciiLikeMode(function(c) {
+	return String.fromCharCode(c.charCodeAt(0) + 0xfee0);
+    })
 });
 })()

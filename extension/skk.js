@@ -1,15 +1,31 @@
 var skk = {
+    context: null,
+    modes: {},
+    currentMode: 'hiragana',
+    lookupCallbacks: {},
+    roman: '',
+    preedit: '',
+    caret: null,
+    entries: null
 };
 
-(function() {
+skk.commitText = function(text) {
+    chrome.input.ime.commitText(skk.context, text);
+};
 
-skk.modes = {}
-skk.currentMode = 'hiragana';
-skk.lookupCallbacks = {};
-skk.roman = '';
-skk.preedit = '';
-skk.caret = null;
-skk.entries = {};
+skk.setComposition = function(
+    text, selectionStart, selectionEnd, caret, segments) {
+    chrome.input.ime.setComposition(
+        skk.context, text, selectionStart, selectionEnd, caret, segments);
+}
+
+skk.clearComposition = function() {
+    chrome.input.ime.clearComposition(skk.context);
+}
+
+skk.sendKeyEvent = function(keyevent) {
+    chrome.input.ime.sendKeyEvent(skk.context, keyevent);
+}
 
 skk.initDictionary = function() {
     skk.dictWorker = new Worker('../extension/dictionary_loader.js');
@@ -33,11 +49,8 @@ skk.lookup = function(reading, callback) {
     skk.dictWorker.postMessage({type:'lookup', reading:reading});
 }
 
-skk.registerMode = function(modeName, keyHandler, initHandler) {
-    skk.modes[modeName] = {
-        keyHandler: keyHandler,
-        initHandler: initHandler
-    };
+skk.registerMode = function(modeName, mode) {
+    skk.modes[modeName] = mode;
 };
 
 skk.switchMode = function(newMode) {
@@ -46,14 +59,22 @@ skk.switchMode = function(newMode) {
     skk.currentMode = newMode;
     var initHandler = skk.modes[skk.currentMode].initHandler;
     if (initHandler) {
-        initHandler();
+        initHandler(skk);
     }
 };
 
 skk.handleKeyEvent = function(keyevent) {
     var keyHandler = skk.modes[skk.currentMode].keyHandler;
     if (keyHandler) {
-        keyHandler(keyevent);
+        keyHandler(skk, keyevent);
+    }
+
+    // currentMode may be changed during keyHandler, so we need to re-lookup
+    // the modes here.
+    var compositionHandler = skk.modes[skk.currentMode].compositionHandler;
+    if (compositionHandler) {
+        compositionHandler(skk);
+    } else {
+        chrome.input.ime.clearComposition(skk.context);
     }
 }
-})()
