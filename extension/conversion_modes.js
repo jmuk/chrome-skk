@@ -35,7 +35,7 @@ function conversionMode(skk, keyevent) {
             // recursive word registration...
             skk.entries.index = 0;
         }
-    } else if (keyevent.key == 'x') {
+    } else if (keyevent.key == 'x' || keyevent.key == 'escape') {
         skk.entries.index--;
         if (skk.entries.index < 0) {
             skk.entries = null;
