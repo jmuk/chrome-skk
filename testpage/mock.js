@@ -101,6 +101,74 @@ function commitText (ctx, text, callback) {
     }
 }
 
+var kDefaultCandidateWindowPageSize = 10;
+var candidateWindowProperty = {
+    cursorVisible: false,
+    vertical: false,
+    pageSize: kDefaultCandidateWindowPageSize
+};
+
+function setCandidateWindowProperties(engineId, properties, callback) {
+    document.getElementById('candidate-window').style.display =
+	properties.visible ? 'block' : 'none';
+    candidateWindowProperty.cursorVisible = properties.cursorVisible;
+    candidateWindowProperty.vertical = properties.vertical;
+    candidateWindowProperty.pageSize =
+	properties.pageSize || kDefaultCandidateWindowPageSize;
+    if (properties.auxiliaryTextVisible &&
+	properties.auxiliaryText.length > 0) {
+	var aux_text = document.getElementById('aux-text');
+	aux_text.style.display = 'block';
+	aux_text.innerHTML = '';
+	aux_text.appendChild(document.createTextNode(properties.auxiliaryText));
+    } else {
+	document.getElementById('aux-text').style.display = 'none';
+    }
+
+    if (callback) {
+	callback(true);
+    }
+}
+
+function setCandidates(contextId, candidates, callback) {
+    var parent = document.getElementById('candidates');
+    parent.innerHTML = '';
+    for (var i = 0;
+	 i < candidates.length && i < candidateWindowProperty.pageSize;
+	 i++) {
+	var candidate = candidates[i];
+	var tr = document.createElement('tr');
+	tr.id = 'candidate-' + candidate.id;
+	var c1 = document.createElement('td');
+	if (candidate.label) {
+	    c1.appendChild(document.createTextNode(candidate.label));
+	}
+	tr.appendChild(c1);
+	var c2 = document.createElement('td');
+	c2.appendChild(document.createTextNode(candidate.candidate));
+	tr.appendChild(c2);
+	var c3 = document.createElement('td');
+	if (candidate.annotation) {
+	    c3.appendChild(document.createTextNode(candidate.annotation));
+	}
+	tr.appendChild(c3);
+
+	tr.onclick = function(ev) {
+	    var target = ev.target;
+	    while (target.nodeName != "TR") {
+		target = target.parentNode;
+	    }
+	    var id = Number(target.id.slice('candidate-'.length));
+	    chrome.input.onCandidateClicked.emit(mockEngineId, id, 'left');
+	}
+	parent.appendChild(tr);
+    }
+
+    if (callback) {
+	callback(true);
+    }
+}
+
 function NotImplemented() {
     console.log("NotImplemented");
 }
@@ -124,8 +192,8 @@ chrome['input'] = {
 	setComposition: setComposition,
 	clearComposition: clearComposition,
 	commitText: commitText,
-	setCandidateWindowProperties: NotImplemented,
-	setCandidates: NotImplemented,
+	setCandidateWindowProperties: setCandidateWindowProperties,
+	setCandidates: setCandidates,
 	setCursorPosition: NotImplemented,
 	setMenuItems: NotImplemented,
 	updateMenuItems: NotImplemented,

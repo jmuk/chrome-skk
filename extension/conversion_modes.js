@@ -33,13 +33,22 @@ function initConversion(skk) {
 
 function conversionMode(skk, keyevent) {
     if (keyevent.key == ' ') {
-        skk.entries.index++;
+        if (skk.entries.index > 2) {
+            skk.entries.index += 7;
+        } else {
+            skk.entries.index++;
+        }
+
         if (skk.entries.index >= skk.entries.entries.length) {
             // recursive word registration...
             skk.entries.index = 0;
         }
-    } else if (keyevent.key == 'x' || keyevent.key == 'escape') {
-        skk.entries.index--;
+    } else if (keyevent.key == 'x') {
+        if (skk.entries.index > 9) {
+            skk.entries.index -= 7;
+        } else {
+            skk.entries.index--;
+        }
         if (skk.entries.index < 0) {
             skk.entries = null;
             skk.preedit += skk.okuriText;
@@ -47,6 +56,12 @@ function conversionMode(skk, keyevent) {
             skk.okuriPrefix = '';
             skk.switchMode('preedit');
         }
+    } else if (keyevent.key == 'escape') {
+        skk.entries = null;
+        skk.preedit += skk.okuriText;
+        skk.okuriText = '';
+        skk.okuriPrefix = '';
+        skk.switchMode('preedit');
     } else if (keyevent.key == 'shift' || keyevent.key == 'alt' ||
                keyevent.key == 'ctrl') {
         // do nothing.

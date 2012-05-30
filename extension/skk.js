@@ -29,6 +29,35 @@ skk.sendKeyEvent = function(keyevent) {
     chrome.input.ime.sendKeyEvent(skk.context, keyevent);
 }
 
+skk.updateCandidates = function() {
+    if (!skk.entries || skk.entries.index <= 2) {
+        chrome.input.ime.setCandidateWindowProperties(skk.mockEngineId, {
+            visible:false
+        });
+    } else {
+        chrome.input.ime.setCandidateWindowProperties(skk.mockEngineId, {
+            visible:true,
+            cursorVisible:false,
+            vertical:true,
+            pageSize:7
+        });
+        var candidates = [];
+        for (var i = 0; i < 7; i++) {
+            if (i + skk.entries.index >= skk.entries.entries.length) {
+                break;
+            }
+            var entry = skk.entries.entries[skk.entries.index + i];
+            candidates.push({
+                candidate:entry.word,
+                id:skk.entries.index + i,
+                label:"asdfjkl"[i],
+                annotation:skk.entries.annotation
+            });
+        }
+        chrome.input.ime.setCandidates(skk.context, candidates);
+    }
+}
+
 skk.initDictionary = function() {
     skk.dictWorker = new Worker('../extension/dictionary_loader.js');
     skk.dictWorker.addEventListener('message', function (ev) {
@@ -77,4 +106,6 @@ skk.handleKeyEvent = function(keyevent) {
     } else {
         chrome.input.ime.clearComposition(skk.context);
     }
+
+    skk.updateCandidates();
 }
