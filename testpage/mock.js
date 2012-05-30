@@ -281,6 +281,9 @@ window.addEventListener('load', function() {
 	emitKeyEvent(ev);
 	return false;
     };
+    div.onblur = function(ev) {
+	div.focus();
+    };
 });
 
 for (var i = 0; i < srcs.length; i++) {
