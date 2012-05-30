@@ -285,11 +285,4 @@ window.addEventListener('load', function() {
 	div.focus();
     };
 });
-
-for (var i = 0; i < srcs.length; i++) {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = srcs[i];
-    document.head.appendChild(script);
-}
 })()
