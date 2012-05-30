@@ -1,5 +1,5 @@
 var dictionary_filename = 'SKK-JISYO.L.gz';
-var server = 'http://localhost:8083/';
+var server = 'http://skk-dict-mirror.appspot.com/';
 
 var systemDict = {};
 var userDict = {};
