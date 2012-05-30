@@ -11,41 +11,32 @@ function initPreedit(skk) {
     skk.caret = skk.preedit.length;
 }
 
-function preeditInput(skk, keyevent) {
+function preeditKeybind(skk, keyevent) {
     if (keyevent.key == 'return') {
         skk.commitText(skk.preedit);
         skk.preedit = '';
         skk.switchMode('hiragana');
-        return;
+        return true;
     }
 
     if (keyevent.key == 'escape') {
         skk.preedit = '';
         skk.switchMode('hiragana');
-        return;
-    }
-
-    if (keyevent.key == ' ') {
-        if (skk.roman == 'n') {
-            skk.roman = '';
-            skk.preedit += romanTable['nn'];
-        }
-        skk.switchMode('conversion');
-        return;
+        return true;
     }
 
     if (keyevent.key == 'left' || (keyevent.key == 'b' && keyevent.ctrlKey)) {
         if (skk.caret > 0) {
             skk.caret--;
         }
-        return;
+        return true;
     }
 
     if (keyevent.key == 'right' || (keyevent.key == 'f' && keyevent.ctrlKey)) {
         if (skk.caret < skk.preedit.length) {
             skk.caret++;
         }
-        return;
+        return true;
     }
 
     if (keyevent.key == 'backspace') {
@@ -59,9 +50,25 @@ function preeditInput(skk, keyevent) {
             skk.commitText(skk.preedit);
 	    skk.preedit = '';
             skk.switchMode('hiragana');
-            return;
         }
+        return true;
+    }
+
+    return false;
+}
+
+function preeditInput(skk, keyevent) {
+    if (keyevent.key == ' ') {
+        if (skk.roman == 'n') {
+            skk.roman = '';
+            skk.preedit += romanTable['nn'];
+        }
+        skk.switchMode('conversion');
         return;
+    }
+
+    if (preeditKeybind(skk, keyevent)) {
+	return;
     }
 
     if (keyevent.key.length != 1) {
@@ -81,8 +88,31 @@ function preeditInput(skk, keyevent) {
     }
 }
 
+function asciiPreeditInput(skk, keyevent) {
+    if (keyevent.key == ' ') {
+	skk.switchMode('conversion');
+    }
+
+    if (preeditKeybind(skk, keyevent)) {
+	return;
+    }
+
+    if (keyevent.key.length != 1) {
+	return;
+    }
+
+    skk.preedit += keyevent.key;
+    skk.caret++;
+}
+
 skk.registerMode('preedit', {
     keyHandler: preeditInput,
+    compositionHandler: updateComposition,
+    initHandler: initPreedit
+});
+
+skk.registerMode('ascii-preedit', {
+    keyHandler: asciiPreeditInput,
     compositionHandler: updateComposition,
     initHandler: initPreedit
 });

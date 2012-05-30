@@ -44,6 +44,9 @@ function createRomanInput(table) {
         } else if (keyevent.key == 'L') {
             skk.switchMode('full-ascii');
             return;
+        } else if (keyevent.key == '/') {
+            skk.switchMode('ascii-preedit');
+            return;
         }
 
         processRoman(keyevent.key, table, function(text) {
