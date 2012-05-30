@@ -2,7 +2,6 @@ var skk = {
     context: null,
     modes: {},
     currentMode: 'hiragana',
-    lookupCallbacks: {},
     roman: '',
     preedit: '',
     okuriPrefix: '',
@@ -59,25 +58,14 @@ skk.updateCandidates = function() {
 }
 
 skk.initDictionary = function() {
-    skk.dictWorker = new Worker('../extension/dictionary_loader.js');
-    skk.dictWorker.addEventListener('message', function (ev) {
-        if (ev.data.type == 'update_status') {
-            console.log(ev.data.percent);
-        } else if (ev.data.type == 'lookup_result') {
-            if (skk.lookupCallbacks[ev.data.reading]) {
-                skk.lookupCallbacks[ev.data.reading](ev.data.data);
-                skk.lookupCallbacks[ev.data.reading] = null;
-            }
-        }
-        console.log(ev.data);
-    });
-    skk.dictWorker.postMessage(
-        {type:'init', dictionary_filename:'SKK-JISYO.L.gz'});
+    initSystemDictionary('SKK-JISYO.L.gz');
 };
 
 skk.lookup = function(reading, callback) {
-    skk.lookupCallbacks[reading] = callback;
-    skk.dictWorker.postMessage({type:'lookup', reading:reading});
+    result = lookupDictionary(reading);
+    if (result) {
+        callback(result.data);
+    }
 }
 
 skk.registerMode = function(modeName, mode) {

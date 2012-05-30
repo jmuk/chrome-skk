@@ -1,3 +1,6 @@
+var initSystemDictionary = null;
+var lookupDictionary = null;
+(function() {
 var dictionary_filename = 'SKK-JISYO.L.gz';
 var server = 'http://skk-dict-mirror.appspot.com/';
 
@@ -99,7 +102,7 @@ function parseData(data) {
         result[reading] = entries;
 
         if (i == tic) {
-            postMessage({'type': 'update_status', 'percent':i / total});
+            console.log({'type': 'update_status', 'percent':i / total});
             tic += total / 100;
         }
     }
@@ -119,7 +122,7 @@ function doUpdate(fs) {
             'system-dictionary.json', {create:true}, function(fileEntry) {
                 fileEntry.createWriter(function(fileWriter) {
                     fileWriter.onwriteend = function(e) {
-                        postMessage(
+                        console.log(
                             {'type':'update_status', 'percent':100});
                     };
                     var bb = new WebKitBlobBuilder();
@@ -131,14 +134,18 @@ function doUpdate(fs) {
     xhr.send();
 }
 
-function initSystemDictionary() {
+initSystemDictionary = function(dict_name) {
+    if (dict_name) {
+        dictionary_filename = dict_name;
+    }
+
     function onInitFS(fs) {
         fs.root.getFile('system-dictionary.json', {}, function(fileEntry) {
             fileEntry.file(function(file) {
                 var reader = new FileReader();
                 reader.onloadend = function(e) {
                     systemDict = JSON.parse(reader.result);
-                    postMessage({type:'update_status',
+                    console.log({type:'update_status',
                                  message: 'loaded_from_file',
                                  percent:100});
                     // doesDictionaryNeedUpdate(fs);
@@ -151,20 +158,14 @@ function initSystemDictionary() {
 
     var request = self.requestFileSystem || self.webkitRequestFileSystem;
     request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
-}
+};
 
-function lookup(reading) {
+lookupDictionary = function (reading) {
     var entries = systemDict[reading];
-    postMessage({type:'lookup_result', reading:reading, data:entries});
-}
-
-addEventListener('message', function (ev) {
-    if (ev.data.type == 'init') {
-        if (ev.data.dictionary_filename) {
-            dictionary_filename = ev.data.dictionary_filename;
-        }
-        initSystemDictionary();
-    } else if (ev.data.type == 'lookup') {
-        lookup(ev.data.reading);
+    if (entries) {
+        return {reading:reading, data:entries};
+    } else {
+        return null;
     }
-});
+};
+})()
