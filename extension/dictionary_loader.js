@@ -155,7 +155,7 @@ function initSystemDictionary() {
 
 function lookup(reading) {
     var entries = systemDict[reading];
-    postMessage({type:'lookup_result', reading: reading, data:entries});
+    postMessage({type:'lookup_result', reading:reading, data:entries});
 }
 
 addEventListener('message', function (ev) {

@@ -5,6 +5,8 @@ var skk = {
     lookupCallbacks: {},
     roman: '',
     preedit: '',
+    okuriPrefix: '',
+    okuriText: '',
     caret: null,
     entries: null
 };
@@ -54,8 +56,6 @@ skk.registerMode = function(modeName, mode) {
 };
 
 skk.switchMode = function(newMode) {
-    chrome.input.ime.clearComposition(skk.context);
-    skk.roman = '';
     skk.currentMode = newMode;
     var initHandler = skk.modes[skk.currentMode].initHandler;
     if (initHandler) {

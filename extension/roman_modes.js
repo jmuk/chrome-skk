@@ -27,24 +27,34 @@ function createRomanInput(table) {
         }
 
         if (keyevent.key == 'q') {
+            skk.roman = '';
             skk.switchMode(
                 (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
 	    return;
         } else if (keyevent.key == 'Q') {
+            skk.roman = '';
             skk.switchMode('preedit');
             return;
         } else if (keyevent.shiftKey &&
                    keyevent.key >= 'A' && keyevent.key < 'Z') {
             skk.switchMode('preedit');
-            skk.handleKeyEvent(keyevent);
+            processRoman(
+                keyevent.key.toLowerCase(), romanTable, function(text) {
+                    skk.preedit = skk.preedit.slice(0, skk.caret) +
+                        text + skk.preedit.slice(skk.caret);
+                    skk.caret += text.length;
+                });
             return;
         } else if (keyevent.key == 'l') {
+            skk.roman = '';
             skk.switchMode('ascii');
             return;
         } else if (keyevent.key == 'L') {
+            skk.roman = '';
             skk.switchMode('full-ascii');
             return;
         } else if (keyevent.key == '/') {
+            skk.roman = '';
             skk.switchMode('ascii-preedit');
             return;
         }

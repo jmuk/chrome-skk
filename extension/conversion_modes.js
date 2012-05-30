@@ -11,6 +11,9 @@ function updateComposition(skk) {
     }
 
     var preedit = '\u25bc' + entry.word;
+    if (skk.okuriText.length > 0) {
+        preedit += skk.okuriText;
+    }
     if (entry.annotation) {
         preedit += ';' + entry.annotation;
     }
@@ -19,7 +22,7 @@ function updateComposition(skk) {
 }
 
 function initConversion(skk) {
-    skk.lookup(skk.preedit, function(entries) {
+    skk.lookup(skk.preedit + skk.okuriPrefix, function(entries) {
         skk.entries = {index:0, entries:entries};
         if (entries.length == 0) {
             return;
@@ -39,21 +42,26 @@ function conversionMode(skk, keyevent) {
         skk.entries.index--;
         if (skk.entries.index < 0) {
             skk.entries = null;
+            skk.preedit += skk.okuriText;
+            skk.okuriText = '';
+            skk.okuriPrefix = '';
             skk.switchMode('preedit');
         }
     } else if (keyevent.key == 'shift' || keyevent.key == 'alt' ||
                keyevent.key == 'ctrl') {
         // do nothing.
     } else {
-        skk.commitText(skk.entries.entries[skk.entries.index].word);
+        skk.commitText(
+            skk.entries.entries[skk.entries.index].word + skk.okuriText);
         skk.clearComposition();
+        skk.entries = null;
+        skk.okuriText = '';
+        skk.okuriPrefix = '';
         if (keyevent.key == '>') {
             skk.preedit = '>';
-            skk.entries = null;
             skk.switchMode('preedit');
         } else {
             skk.preedit = '';
-            skk.entries = null;
             skk.switchMode('hiragana');
             skk.handleKeyEvent(keyevent);
         }
