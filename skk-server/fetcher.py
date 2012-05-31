@@ -45,7 +45,8 @@ class SingleDictFetcher(webapp2.RequestHandler):
             headers['If-None-Match'] = dict_info.etag
         result = urlfetch.fetch(url=_openlab_base_url + filename,
                                 method=urlfetch.GET,
-                                headers=headers)
+                                headers=headers,
+                                deadline=60)
         if result.status_code != 200:
             return
         
