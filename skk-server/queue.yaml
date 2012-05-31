@@ -1,0 +1,4 @@
+queue:
+- name: dict-fetch
+  rate: 1/s
+  bucket_size: 1
