@@ -21,11 +21,11 @@ function createAsciiLikeMode(conv) {
     }
 }
 
-skk.registerMode('ascii', {
+SKK.registerMode('ascii', {
     keyHandler: createAsciiLikeMode(function(c) { return c; })
 });
 
-skk.registerMode('full-ascii', {
+SKK.registerMode('full-ascii', {
     keyHandler: createAsciiLikeMode(function(c) {
 	return String.fromCharCode(c.charCodeAt(0) + 0xfee0);
     })

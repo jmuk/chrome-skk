@@ -1,4 +1,8 @@
+(function() {
+var skk;
+
 chrome.input.ime.onActivate.addListener(function(engineId) {
+    skk = new SKK(engineId);
     skk.initDictionary();
 });
 
@@ -14,3 +18,4 @@ chrome.input.ime.onKeyEvent.addListener(function(engineId, keyevent) {
     skk.handleKeyEvent(keyevent);
 });
 
+})()

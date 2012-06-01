@@ -31,51 +31,7 @@ var romanTable = {
 
 var katakanaTable = {};
 
-var processRoman = null;
-
 (function() {
-function isStarting(key, table) {
-    var starting = false;
-    for (var k in table) {
-	if (k.indexOf(key) == 0) {
-	    starting = true;
-	}
-    }
-    return starting;
-}
-
-processRoman = function (key, table, emitter) {
-    skk.roman += key;
-    if (table[skk.roman]) {
-        emitter(table[skk.roman]);
-        skk.roman = '';
-        return;
-    }
-
-    if (skk.roman.length > 1 && skk.roman[0] == skk.roman[1]) {
-        emitter(table['xtu']);
-        skk.roman = skk.roman.slice(1);
-    }
-
-    if (isStarting(skk.roman, table)) {
-        return;
-    }
-
-    if (skk.roman[0] == 'n') {
-        emitter(table['nn']);
-    }
-
-    if (table[key]) {
-        emitter(table[key]);
-        skk.roman = '';
-    } else if (isStarting(key, table)) {
-        skk.roman = key;
-    } else {
-        emitter(key);
-        skk.roman = '';
-    }
-};
-
 function initRomanTable() {
     var youons = ['k', 's', 't', 'n', 'h', 'm', 'r', 'g', 'd', 'b', 'p'];
     function addYouon(youon, prefix, base) {

@@ -81,10 +81,11 @@ function preeditInput(skk, keyevent) {
     if (keyevent.shiftKey && 'A' <= keyevent.key && keyevent.key <= 'Z') {
 	skk.okuriPrefix =
 	    (skk.roman.length > 0) ? skk.roman[0] : keyevent.key.toLowerCase();
-	processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
-	    skk.okuriText = text;
-	    skk.switchMode('conversion');
-	});
+	skk.processRoman(
+	    keyevent.key.toLowerCase(), romanTable, function(text) {
+		skk.okuriText = text;
+		skk.switchMode('conversion');
+	    });
 	console.log(skk.roman);
 	if (skk.currentMode == 'preedit') {
 	    skk.switchMode('okuri-preedit');
@@ -92,7 +93,7 @@ function preeditInput(skk, keyevent) {
 	return;
     }
 
-    processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
+    skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
         skk.preedit = skk.preedit.slice(0, skk.caret) +
             text + skk.preedit.slice(skk.caret);
         skk.caret += text.length;
@@ -139,7 +140,7 @@ function okuriPreeditInput(skk, keyevent) {
 	}
     }
 
-    processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
+    skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
 	skk.okuriText = text;
 	skk.switchMode('conversion');
     });
@@ -162,18 +163,18 @@ function asciiPreeditInput(skk, keyevent) {
     skk.caret++;
 }
 
-skk.registerMode('preedit', {
+SKK.registerMode('preedit', {
     keyHandler: preeditInput,
     compositionHandler: updateComposition,
     initHandler: initPreedit
 });
 
-skk.registerMode('okuri-preedit', {
+SKK.registerMode('okuri-preedit', {
     keyHandler: okuriPreeditInput,
     compositionHandler: updateOkuriComposition
 });
 
-skk.registerMode('ascii-preedit', {
+SKK.registerMode('ascii-preedit', {
     keyHandler: asciiPreeditInput,
     compositionHandler: updateComposition,
     initHandler: initPreedit

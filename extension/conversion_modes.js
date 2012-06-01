@@ -1,5 +1,9 @@
 (function() {
 
+function createInternalSKK() {
+    // TODO: implement
+}
+
 function updateComposition(skk) {
     if (!skk.entries) {
         return;
@@ -23,10 +27,11 @@ function updateComposition(skk) {
 
 function initConversion(skk) {
     skk.lookup(skk.preedit + skk.okuriPrefix, function(entries) {
-        skk.entries = {index:0, entries:entries};
         if (entries.length == 0) {
-            return;
-        }
+	    skk.internal = createInternalSKK(); 
+        } else {
+            skk.entries = {index:0, entries:entries};
+	}
         updateComposition(skk);
     });
 }
@@ -83,7 +88,7 @@ function conversionMode(skk, keyevent) {
     }
 }
 
-skk.registerMode('conversion', {
+SKK.registerMode('conversion', {
     keyHandler: conversionMode,
     initHandler: initConversion,
     compositionHandler: updateComposition

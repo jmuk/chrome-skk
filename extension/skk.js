@@ -1,40 +1,40 @@
-var skk = {
-    context: null,
-    modes: {},
-    currentMode: 'hiragana',
-    roman: '',
-    preedit: '',
-    okuriPrefix: '',
-    okuriText: '',
-    caret: null,
-    entries: null
+function SKK(engineId) {
+    this.engineId = engineId;
+    this.context = null;
+    this.currentMode = 'hiragana'
+    this.roman = ''
+    this.preedit = ''
+    this.okuriPrefix = ''
+    this.okuriText = ''
+    this.caret = null
+    this.entries = null
+}
+
+SKK.prototype.commitText = function(text) {
+    chrome.input.ime.commitText(this.context, text);
 };
 
-skk.commitText = function(text) {
-    chrome.input.ime.commitText(skk.context, text);
-};
-
-skk.setComposition = function(
+SKK.prototype.setComposition = function(
     text, selectionStart, selectionEnd, caret, segments) {
     chrome.input.ime.setComposition(
-        skk.context, text, selectionStart, selectionEnd, caret, segments);
+        this.context, text, selectionStart, selectionEnd, caret, segments);
 }
 
-skk.clearComposition = function() {
-    chrome.input.ime.clearComposition(skk.context);
+SKK.prototype.clearComposition = function() {
+    chrome.input.ime.clearComposition(this.context);
 }
 
-skk.sendKeyEvent = function(keyevent) {
-    chrome.input.ime.sendKeyEvent(skk.context, keyevent);
+SKK.prototype.sendKeyEvent = function(keyevent) {
+    chrome.input.ime.sendKeyEvent(this.context, keyevent);
 }
 
-skk.updateCandidates = function() {
-    if (!skk.entries || skk.entries.index <= 2) {
-        chrome.input.ime.setCandidateWindowProperties(skk.mockEngineId, {
+SKK.prototype.updateCandidates = function() {
+    if (!this.entries || this.entries.index <= 2) {
+        chrome.input.ime.setCandidateWindowProperties(this.engineId, {
             visible:false
         });
     } else {
-        chrome.input.ime.setCandidateWindowProperties(skk.mockEngineId, {
+        chrome.input.ime.setCandidateWindowProperties(this.engineId, {
             visible:true,
             cursorVisible:false,
             vertical:true,
@@ -42,58 +42,101 @@ skk.updateCandidates = function() {
         });
         var candidates = [];
         for (var i = 0; i < 7; i++) {
-            if (i + skk.entries.index >= skk.entries.entries.length) {
+            if (i + this.entries.index >= this.entries.entries.length) {
                 break;
             }
-            var entry = skk.entries.entries[skk.entries.index + i];
+            var entry = this.entries.entries[this.entries.index + i];
             candidates.push({
                 candidate:entry.word,
-                id:skk.entries.index + i,
+                id:this.entries.index + i,
                 label:"asdfjkl"[i],
-                annotation:skk.entries.annotation
+                annotation:this.entries.annotation
             });
         }
-        chrome.input.ime.setCandidates(skk.context, candidates);
+        chrome.input.ime.setCandidates(this.context, candidates);
     }
 }
 
-skk.initDictionary = function() {
+SKK.prototype.initDictionary = function() {
     initSystemDictionary('SKK-JISYO.L.gz');
 };
 
-skk.lookup = function(reading, callback) {
+SKK.prototype.lookup = function(reading, callback) {
     result = lookupDictionary(reading);
     if (result) {
         callback(result.data);
     }
 }
 
-skk.registerMode = function(modeName, mode) {
-    skk.modes[modeName] = mode;
-};
+SKK.prototype.processRoman = function (key, table, emitter) {
+    function isStarting(key) {
+	var starting = false;
+	for (var k in table) {
+	    if (k.indexOf(key) == 0) {
+		starting = true;
+	    }
+	}
+	return starting;
+    }
 
-skk.switchMode = function(newMode) {
-    skk.currentMode = newMode;
-    var initHandler = skk.modes[skk.currentMode].initHandler;
-    if (initHandler) {
-        initHandler(skk);
+    this.roman += key;
+    if (table[this.roman]) {
+        emitter(table[this.roman]);
+        this.roman = '';
+        return;
+    }
+
+    if (this.roman.length > 1 && this.roman[0] == this.roman[1]) {
+        emitter(table['xtu']);
+        this.roman = this.roman.slice(1);
+    }
+
+    if (isStarting(this.roman, table)) {
+        return;
+    }
+
+    if (this.roman[0] == 'n') {
+        emitter(table['nn']);
+    }
+
+    if (table[key]) {
+        emitter(table[key]);
+        this.roman = '';
+    } else if (isStarting(key, table)) {
+        this.roman = key;
+    } else {
+        emitter(key);
+        this.roman = '';
     }
 };
 
-skk.handleKeyEvent = function(keyevent) {
-    var keyHandler = skk.modes[skk.currentMode].keyHandler;
+SKK.prototype.modes = {}
+SKK.registerMode = function(modeName, mode) {
+    SKK.prototype.modes[modeName] = mode;
+};
+
+SKK.prototype.switchMode = function(newMode) {
+    this.currentMode = newMode;
+    var initHandler = this.modes[this.currentMode].initHandler;
+    if (initHandler) {
+        initHandler(this);
+    }
+};
+
+SKK.prototype.handleKeyEvent = function(keyevent) {
+    var keyHandler = this.modes[this.currentMode].keyHandler;
     if (keyHandler) {
-        keyHandler(skk, keyevent);
+        keyHandler(this, keyevent);
     }
 
     // currentMode may be changed during keyHandler, so we need to re-lookup
     // the modes here.
-    var compositionHandler = skk.modes[skk.currentMode].compositionHandler;
+    var compositionHandler = this.modes[this.currentMode].compositionHandler;
     if (compositionHandler) {
-        compositionHandler(skk);
+        compositionHandler(this);
     } else {
-        chrome.input.ime.clearComposition(skk.context);
+        chrome.input.ime.clearComposition(this.context);
     }
 
-    skk.updateCandidates();
+    this.updateCandidates();
 }

@@ -35,16 +35,6 @@ function createRomanInput(table) {
             skk.roman = '';
             skk.switchMode('preedit');
             return;
-        } else if (keyevent.shiftKey &&
-                   keyevent.key >= 'A' && keyevent.key < 'Z') {
-            skk.switchMode('preedit');
-            processRoman(
-                keyevent.key.toLowerCase(), romanTable, function(text) {
-                    skk.preedit = skk.preedit.slice(0, skk.caret) +
-                        text + skk.preedit.slice(skk.caret);
-                    skk.caret += text.length;
-                });
-            return;
         } else if (keyevent.key == 'l') {
             skk.roman = '';
             skk.switchMode('ascii');
@@ -57,20 +47,30 @@ function createRomanInput(table) {
             skk.roman = '';
             skk.switchMode('ascii-preedit');
             return;
+        } else if (keyevent.shiftKey &&
+                   keyevent.key >= 'A' && keyevent.key < 'Z') {
+            skk.switchMode('preedit');
+            skk.processRoman(
+                keyevent.key.toLowerCase(), romanTable, function(text) {
+                    skk.preedit = skk.preedit.slice(0, skk.caret) +
+                        text + skk.preedit.slice(skk.caret);
+                    skk.caret += text.length;
+                });
+            return;
         }
 
-        processRoman(keyevent.key, table, function(text) {
+        skk.processRoman(keyevent.key, table, function(text) {
             skk.commitText(text);
         });
     };
 }
 
-skk.registerMode('hiragana', {
+SKK.registerMode('hiragana', {
     keyHandler: createRomanInput(romanTable),
     compositionHandler: updateComposition
 });
 
-skk.registerMode('katakana', {
+SKK.registerMode('katakana', {
     keyHandler: createRomanInput(katakanaTable),
     compositionHandler: updateComposition
 });

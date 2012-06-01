@@ -1,10 +1,10 @@
 var initSystemDictionary = null;
 var lookupDictionary = null;
-(function() {
-var dictionary_filename = 'SKK-JISYO.L.gz';
-var server = 'http://skk-dict-mirror.appspot.com/';
 
 var systemDict = {};
+(function() {
+var dictionary_filename = 'SKK-JISYO.L.gz';
+
 var userDict = {};
 
 function doesDictionaryNeedUpdate(fs) {
@@ -111,7 +111,7 @@ function parseData(data) {
 
 function doUpdate(fs) {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', server + dictionary_filename);
+    xhr.open('GET', '/' + dictionary_filename);
     xhr.onreadystatechange = function() {
         if (xhr.readyState != 4) {
             return;
@@ -161,7 +161,9 @@ initSystemDictionary = function(dict_name) {
 };
 
 lookupDictionary = function (reading) {
+    console.log(reading);
     var entries = systemDict[reading];
+    console.log(entries);
     if (entries) {
         return {reading:reading, data:entries};
     } else {
