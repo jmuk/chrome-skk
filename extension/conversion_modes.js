@@ -52,15 +52,13 @@ function conversionMode(skk, keyevent) {
             skk.okuriPrefix = '';
             skk.switchMode('preedit');
         }
-    } else if (keyevent.key == 'escape') {
+    } else if (keyevent.key == 'escape' ||
+	       (keyevent.key == 'g' && keyevent.ctrlKey)) {
         skk.entries = null;
         skk.preedit += skk.okuriText;
         skk.okuriText = '';
         skk.okuriPrefix = '';
         skk.switchMode('preedit');
-    } else if (keyevent.key == 'shift' || keyevent.key == 'alt' ||
-               keyevent.key == 'ctrl') {
-        // do nothing.
     } else {
         entry = skk.entries.entries[skk.entries.index];
         skk.commitText(entry.word + skk.okuriText);

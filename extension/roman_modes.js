@@ -21,11 +21,6 @@ function createRomanInput(table) {
             return;
         }
 
-        if (keyevent.key.length != 1) {
-	    skk.sendKeyEvent(keyevent);
-            return;
-        }
-
         if (keyevent.key == 'q') {
             skk.roman = '';
             skk.switchMode(
@@ -57,7 +52,16 @@ function createRomanInput(table) {
                     skk.caret += text.length;
                 });
             return;
-        }
+	} else if ((keyevent.key == 'escape' ||
+		    (keyevent.key == 'g' && keyevent.ctrlKey)) &&
+		   skk.roman.length > 0) {
+	    skk.roman = '';
+	    return;
+        } else if (keyevent.key.length != 1 ||
+		   keyevent.ctrlKey || keyevent.altKey) {
+	    skk.sendKeyEvent(keyevent);
+	    return;
+	}
 
         skk.processRoman(keyevent.key, table, function(text) {
             skk.commitText(text);

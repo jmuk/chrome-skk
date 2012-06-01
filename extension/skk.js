@@ -147,6 +147,12 @@ SKK.prototype.updateComposition = function() {
 }
 
 SKK.prototype.handleKeyEvent = function(keyevent) {
+    // Do not handle modifier only keyevent.
+    if (keyevent.key == 'shift' || keyevent.key == 'ctrl' ||
+	keyevent.key == 'alt') {
+	return;
+    }
+
     if (this.inner_skk) {
         this.inner_skk.handleKeyEvent(keyevent);
     } else {
@@ -222,8 +228,8 @@ SKK.prototype.createInnerSKK = function() {
                 inner_skk.commit_caret--;
             }
         }
-        if (keyevent.key == 'escape' || (
-	    keyevent.key == 'g' && keyevent.ctrlKey)) {
+        if (keyevent.key == 'escape' ||
+	    (keyevent.key == 'g' && keyevent.ctrlKey)) {
             outer_skk.finishInner(false);
         }
     };
@@ -232,7 +238,7 @@ SKK.prototype.createInnerSKK = function() {
 };
 
 SKK.prototype.finishInner = function(successfully) {
-    if (successfully) {
+    if (successfully && this.inner_skk.commit_text.length > 0) {
         var new_word = this.inner_skk.commit_text;
         recordNewResult(this.preedit + this.okuriPrefix, {word:new_word});
         this.commitText(new_word + this.okuriText);
