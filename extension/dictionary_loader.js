@@ -1,10 +1,12 @@
 var initSystemDictionary = null;
 var lookupDictionary = null;
+var registerNewWord = null;
+var recordNewResult = null;
 
-var systemDict = {};
 (function() {
 var dictionary_filename = 'SKK-JISYO.L.gz';
 
+var systemDict = {};
 var userDict = {};
 
 function doesDictionaryNeedUpdate(fs) {
@@ -83,7 +85,6 @@ function parseData(data) {
 
     var lines = data.split('\n');
     var total = lines.length;
-    var tic = total / 100;
     var result = {};
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
@@ -100,11 +101,6 @@ function parseData(data) {
             }
         }
         result[reading] = entries;
-
-        if (i == tic) {
-            console.log({'type': 'update_status', 'percent':i / total});
-            tic += total / 100;
-        }
     }
     return result;
 }
@@ -160,14 +156,58 @@ initSystemDictionary = function(dict_name) {
     request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
 };
 
-lookupDictionary = function (reading) {
-    console.log(reading);
-    var entries = systemDict[reading];
-    console.log(entries);
-    if (entries) {
+lookupDictionary = function(reading) {
+    var entries = userDict[reading] || [];
+    var systemEntries = systemDict[reading] || [];
+    var word_set = {};
+    for (var i = 0; i < entries.length; i++) {
+	word_set[entries[i].word] = true;
+    }
+    for (var i = 0; i < systemEntries.length; i++) {
+	if (!word_set[systemEntries[i].word]) {
+	    word_set[systemEntries[i].word] = true;
+	    entries.push(systemEntries[i]);
+	}
+    }
+
+    if (entries.length > 0) {
         return {reading:reading, data:entries};
     } else {
         return null;
     }
 };
+
+recordNewResult = function(reading, newEntry) {
+    var entries = lookupDictionary(reading);
+    var entry = null;
+
+    if (entries) {
+	for (var i = 0; i < entries.length; i++) {
+	    if (entries[i].word == newEntry.word) {
+		entry = entries[i];
+		break;
+	    }
+	}
+    }
+
+    if (!entry) {
+	userDict[reading] = [newEntry];
+    } else {
+	var userEntries = userDict[reading];
+	var existing_i = -1;
+	for (var i = 0; i < userEntries.length; i++) {
+	    if (userEntries[i].word == newEntry.word) {
+		existing_i = i;
+		break;
+	    }
+	}
+	if (existing_i >= 0) {
+	    userDict[reading] = userEntries.slice(0, existing_i) +
+		userEntries.slice(existing_i + 1);
+	}
+
+	userDict[reading].unshift(entry);
+    }
+}
+
 })()

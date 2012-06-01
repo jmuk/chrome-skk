@@ -2,6 +2,7 @@ function SKK(engineId) {
     this.engineId = engineId;
     this.context = null;
     this.currentMode = 'hiragana'
+    this.previousMode = null;
     this.roman = ''
     this.preedit = ''
     this.okuriPrefix = ''
@@ -29,6 +30,11 @@ SKK.prototype.sendKeyEvent = function(keyevent) {
 }
 
 SKK.prototype.updateCandidates = function() {
+    if (this.internal_skk) {
+        this.internal_skk.updateCandidates();
+        return;
+    }
+
     if (!this.entries || this.entries.index <= 2) {
         chrome.input.ime.setCandidateWindowProperties(this.engineId, {
             visible:false
@@ -65,18 +71,20 @@ SKK.prototype.lookup = function(reading, callback) {
     result = lookupDictionary(reading);
     if (result) {
         callback(result.data);
+    } else {
+	callback(null);
     }
 }
 
 SKK.prototype.processRoman = function (key, table, emitter) {
     function isStarting(key) {
-	var starting = false;
-	for (var k in table) {
-	    if (k.indexOf(key) == 0) {
-		starting = true;
-	    }
-	}
-	return starting;
+        var starting = false;
+        for (var k in table) {
+            if (k.indexOf(key) == 0) {
+                starting = true;
+            }
+        }
+        return starting;
     }
 
     this.roman += key;
@@ -116,6 +124,7 @@ SKK.registerMode = function(modeName, mode) {
 };
 
 SKK.prototype.switchMode = function(newMode) {
+    this.previousMode = this.currentMode;
     this.currentMode = newMode;
     var initHandler = this.modes[this.currentMode].initHandler;
     if (initHandler) {
@@ -123,20 +132,121 @@ SKK.prototype.switchMode = function(newMode) {
     }
 };
 
-SKK.prototype.handleKeyEvent = function(keyevent) {
-    var keyHandler = this.modes[this.currentMode].keyHandler;
-    if (keyHandler) {
-        keyHandler(this, keyevent);
+SKK.prototype.updateComposition = function() {
+    if (this.inner_skk) {
+        this.inner_skk.updateComposition();
+	return;
     }
 
-    // currentMode may be changed during keyHandler, so we need to re-lookup
-    // the modes here.
     var compositionHandler = this.modes[this.currentMode].compositionHandler;
     if (compositionHandler) {
         compositionHandler(this);
     } else {
         chrome.input.ime.clearComposition(this.context);
     }
-
-    this.updateCandidates();
 }
+
+SKK.prototype.handleKeyEvent = function(keyevent) {
+    if (this.inner_skk) {
+        this.inner_skk.handleKeyEvent(keyevent);
+    } else {
+        var keyHandler = this.modes[this.currentMode].keyHandler;
+        if (keyHandler) {
+            keyHandler(this, keyevent);
+        }
+    }
+
+    this.updateComposition();
+    this.updateCandidates();
+};
+
+SKK.prototype.createInnerSKK = function() {
+    var outer_skk = this;
+    var inner_skk = new SKK(this.engineId);
+    inner_skk.commit_text = '';
+    inner_skk.commit_caret = 0;
+    inner_skk.commitText = function(text) {
+        if (text == '\n') {
+            outer_skk.finishInner(true);
+            return;
+        }
+
+        inner_skk.commit_text =
+            inner_skk.commit_text.slice(0, inner_skk.commit_caret) +
+            text + inner_skk.commit_text.slice(inner_skk.commit_caret);
+        inner_skk.commit_caret += text.length;
+    };
+
+    inner_skk.setComposition = function(
+        text, selectionStart, selectionEnd, caret, segments) {
+        var prefix = '\u25bc' + outer_skk.preedit + '\u3010' +
+            inner_skk.commit_text;
+        selectionStart += prefix.length;
+        selectionEnd += prefix.length;
+        caret += outer_skk.preedit.length + 2 + inner_skk.commit_caret;
+        var real_segments = [{start:0, end:prefix.length, style:'underline'}];
+        for (var i = 0; i < segments.length; i++) {
+            real_segments.push({
+                start:segments[i].start + prefix.length,
+                end:segments[i].start + prefix.length,
+                style:segments[i].style
+            });
+        }
+        outer_skk.setComposition(
+            prefix + text + '\u3011', selectionStart, selectionEnd, caret,
+            segments);
+    };
+    inner_skk.clearComposition = function() {
+        var text = '\u25bc' + outer_skk.preedit + '\u3010' +
+            inner_skk.commit_text + '\u3011';
+        var caret = outer_skk.preedit.length + 2 + inner_skk.commit_caret;
+        var segments = [{start:0, end:text.length, style:'underline'}];
+        outer_skk.setComposition(text, null, null, caret, segments);
+    };
+    inner_skk.sendKeyEvent = function(keyevent) {
+        if (keyevent.key == 'right' ||
+            (keyevent.key == 'f' && keyevent.ctrlKey)) {
+            if (inner_skk.commit_caret < inner_skk.commit_text.length) {
+                inner_skk.commit_caret++;
+            }
+        } else if (keyevent.key == 'left' ||
+                   (keyevent.key == 'b' && keyevent.ctrlKey)) {
+            if (inner_skk.commit_caret > 0) {
+                inner_skk.commit_caret--;
+            }
+        } else if (keyevent.key == 'backspace') {
+            if (inner_skk.commit_caret > 0) {
+                inner_skk.commit_text =
+                    inner_skk.commit_text.slice(0, inner_skk.commit_caret - 1) +
+                    inner_skk.commit_text.slice(inner_skk.commit_caret);
+                inner_skk.commit_caret--;
+            }
+        }
+        if (keyevent.key == 'escape' || (
+	    keyevent.key == 'g' && keyevent.ctrlKey)) {
+            outer_skk.finishInner(false);
+        }
+    };
+
+    outer_skk.inner_skk = inner_skk;
+};
+
+SKK.prototype.finishInner = function(successfully) {
+    if (successfully) {
+        var new_word = this.inner_skk.commit_text;
+        recordNewResult(this.preedit + this.okuriPrefix, {word:new_word});
+        this.commitText(new_word + this.okuriText);
+    }
+
+    this.inner_skk = null;
+    this.roman = '';
+    this.okuriText = '';
+    this.okuriPrefix = '';
+
+    if (successfully) {
+        this.preedit = '';
+        this.switchMode('hiragana');
+    } else {
+        this.switchMode(this.previousMode);
+    }
+};

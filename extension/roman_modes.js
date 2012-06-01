@@ -16,13 +16,13 @@ function createRomanInput(table) {
             return;
         }
 
-        if (keyevent.key == 'backspace') {
+        if (keyevent.key == 'backspace' && skk.roman.length > 0) {
             skk.roman = skk.roman.slice(0, skk.roman.length - 1);
             return;
         }
 
         if (keyevent.key.length != 1) {
-            // special keys -- ignore for now
+	    skk.sendKeyEvent(keyevent);
             return;
         }
 

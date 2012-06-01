@@ -20,7 +20,7 @@ function preeditKeybind(skk, keyevent) {
         return true;
     }
 
-    if (keyevent.key == 'escape') {
+    if (keyevent.key == 'escape' || (keyevent.key == 'g' && keyevent.ctrlKey)) {
         skk.preedit = '';
 	skk.roman = '';
         skk.switchMode('hiragana');

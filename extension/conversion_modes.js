@@ -1,14 +1,6 @@
 (function() {
 
-function createInternalSKK() {
-    // TODO: implement
-}
-
 function updateComposition(skk) {
-    if (!skk.entries) {
-        return;
-    }
-
     var entry = skk.entries.entries[skk.entries.index];
     if (!entry) {
         skk.clearComposition();
@@ -27,12 +19,12 @@ function updateComposition(skk) {
 
 function initConversion(skk) {
     skk.lookup(skk.preedit + skk.okuriPrefix, function(entries) {
-        if (entries.length == 0) {
-	    skk.internal = createInternalSKK(); 
-        } else {
+        if (entries) {
             skk.entries = {index:0, entries:entries};
-	}
-        updateComposition(skk);
+            updateComposition(skk);
+	} else {
+            skk.createInnerSKK();
+        }
     });
 }
 
@@ -45,8 +37,7 @@ function conversionMode(skk, keyevent) {
         }
 
         if (skk.entries.index >= skk.entries.entries.length) {
-            // recursive word registration...
-            skk.entries.index = 0;
+	    skk.createInnerSKK();
         }
     } else if (keyevent.key == 'x') {
         if (skk.entries.index > 9) {
@@ -71,8 +62,9 @@ function conversionMode(skk, keyevent) {
                keyevent.key == 'ctrl') {
         // do nothing.
     } else {
-        skk.commitText(
-            skk.entries.entries[skk.entries.index].word + skk.okuriText);
+        entry = skk.entries.entries[skk.entries.index];
+        skk.commitText(entry.word + skk.okuriText);
+        recordNewResult(skk.preedit, entry);
         skk.clearComposition();
         skk.entries = null;
         skk.okuriText = '';
@@ -83,7 +75,9 @@ function conversionMode(skk, keyevent) {
         } else {
             skk.preedit = '';
             skk.switchMode('hiragana');
-            skk.handleKeyEvent(keyevent);
+	    if (keyevent.key != 'return') {
+		skk.handleKeyEvent(keyevent);
+	    }
         }
     }
 }
