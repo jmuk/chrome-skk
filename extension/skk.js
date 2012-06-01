@@ -72,7 +72,7 @@ SKK.prototype.lookup = function(reading, callback) {
     if (result) {
         callback(result.data);
     } else {
-	callback(null);
+        callback(null);
     }
 }
 
@@ -135,7 +135,7 @@ SKK.prototype.switchMode = function(newMode) {
 SKK.prototype.updateComposition = function() {
     if (this.inner_skk) {
         this.inner_skk.updateComposition();
-	return;
+        return;
     }
 
     var compositionHandler = this.modes[this.currentMode].compositionHandler;
@@ -149,8 +149,8 @@ SKK.prototype.updateComposition = function() {
 SKK.prototype.handleKeyEvent = function(keyevent) {
     // Do not handle modifier only keyevent.
     if (keyevent.key == 'shift' || keyevent.key == 'ctrl' ||
-	keyevent.key == 'alt') {
-	return;
+        keyevent.key == 'alt') {
+        return;
     }
 
     if (this.inner_skk) {
@@ -229,7 +229,7 @@ SKK.prototype.createInnerSKK = function() {
             }
         }
         if (keyevent.key == 'escape' ||
-	    (keyevent.key == 'g' && keyevent.ctrlKey)) {
+            (keyevent.key == 'g' && keyevent.ctrlKey)) {
             outer_skk.finishInner(false);
         }
     };

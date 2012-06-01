@@ -22,7 +22,7 @@ function initConversion(skk) {
         if (entries) {
             skk.entries = {index:0, entries:entries};
             updateComposition(skk);
-	} else {
+        } else {
             skk.createInnerSKK();
         }
     });
@@ -37,7 +37,7 @@ function conversionMode(skk, keyevent) {
         }
 
         if (skk.entries.index >= skk.entries.entries.length) {
-	    skk.createInnerSKK();
+            skk.createInnerSKK();
         }
     } else if (keyevent.key == 'x') {
         if (skk.entries.index > 9) {
@@ -53,7 +53,7 @@ function conversionMode(skk, keyevent) {
             skk.switchMode('preedit');
         }
     } else if (keyevent.key == 'escape' ||
-	       (keyevent.key == 'g' && keyevent.ctrlKey)) {
+               (keyevent.key == 'g' && keyevent.ctrlKey)) {
         skk.entries = null;
         skk.preedit += skk.okuriText;
         skk.okuriText = '';
@@ -73,9 +73,9 @@ function conversionMode(skk, keyevent) {
         } else {
             skk.preedit = '';
             skk.switchMode('hiragana');
-	    if (keyevent.key != 'return') {
-		skk.handleKeyEvent(keyevent);
-	    }
+            if (keyevent.key != 'return') {
+                skk.handleKeyEvent(keyevent);
+            }
         }
     }
 }

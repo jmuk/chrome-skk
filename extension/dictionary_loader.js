@@ -161,13 +161,13 @@ lookupDictionary = function(reading) {
     var systemEntries = systemDict[reading] || [];
     var word_set = {};
     for (var i = 0; i < entries.length; i++) {
-	word_set[entries[i].word] = true;
+        word_set[entries[i].word] = true;
     }
     for (var i = 0; i < systemEntries.length; i++) {
-	if (!word_set[systemEntries[i].word]) {
-	    word_set[systemEntries[i].word] = true;
-	    entries.push(systemEntries[i]);
-	}
+        if (!word_set[systemEntries[i].word]) {
+            word_set[systemEntries[i].word] = true;
+            entries.push(systemEntries[i]);
+        }
     }
 
     if (entries.length > 0) {
@@ -182,31 +182,31 @@ recordNewResult = function(reading, newEntry) {
     var entry = null;
 
     if (entries) {
-	for (var i = 0; i < entries.length; i++) {
-	    if (entries[i].word == newEntry.word) {
-		entry = entries[i];
-		break;
-	    }
-	}
+        for (var i = 0; i < entries.length; i++) {
+            if (entries[i].word == newEntry.word) {
+                entry = entries[i];
+                break;
+            }
+        }
     }
 
     if (!entry) {
-	userDict[reading] = [newEntry];
+        userDict[reading] = [newEntry];
     } else {
-	var userEntries = userDict[reading];
-	var existing_i = -1;
-	for (var i = 0; i < userEntries.length; i++) {
-	    if (userEntries[i].word == newEntry.word) {
-		existing_i = i;
-		break;
-	    }
-	}
-	if (existing_i >= 0) {
-	    userDict[reading] = userEntries.slice(0, existing_i) +
-		userEntries.slice(existing_i + 1);
-	}
+        var userEntries = userDict[reading];
+        var existing_i = -1;
+        for (var i = 0; i < userEntries.length; i++) {
+            if (userEntries[i].word == newEntry.word) {
+                existing_i = i;
+                break;
+            }
+        }
+        if (existing_i >= 0) {
+            userDict[reading] = userEntries.slice(0, existing_i) +
+                userEntries.slice(existing_i + 1);
+        }
 
-	userDict[reading].unshift(entry);
+        userDict[reading].unshift(entry);
     }
 }
 

@@ -4,7 +4,7 @@ function updateComposition(skk) {
         skk.preedit.slice(skk.caret);
     var caret = skk.caret + skk.roman.length + 1;
     skk.setComposition(preedit, null, null, caret,
-		       [{start:0, end:preedit.length, style:'underline'}]);
+                       [{start:0, end:preedit.length, style:'underline'}]);
 }
 
 function initPreedit(skk) {
@@ -15,14 +15,14 @@ function preeditKeybind(skk, keyevent) {
     if (keyevent.key == 'return') {
         skk.commitText(skk.preedit);
         skk.preedit = '';
-	skk.roman = '';
+        skk.roman = '';
         skk.switchMode('hiragana');
         return true;
     }
 
     if (keyevent.key == 'escape' || (keyevent.key == 'g' && keyevent.ctrlKey)) {
         skk.preedit = '';
-	skk.roman = '';
+        skk.roman = '';
         skk.switchMode('hiragana');
         return true;
     }
@@ -50,7 +50,7 @@ function preeditKeybind(skk, keyevent) {
             skk.caret--;
         } else {
             skk.commitText(skk.preedit);
-	    skk.preedit = '';
+            skk.preedit = '';
             skk.switchMode('hiragana');
         }
         return true;
@@ -64,13 +64,13 @@ function preeditInput(skk, keyevent) {
         if (skk.roman == 'n') {
             skk.preedit += romanTable['nn'];
         }
-	skk.roman = '';
+        skk.roman = '';
         skk.switchMode('conversion');
         return;
     }
 
     if (preeditKeybind(skk, keyevent)) {
-	return;
+        return;
     }
 
     if (keyevent.key.length != 1) {
@@ -79,18 +79,17 @@ function preeditInput(skk, keyevent) {
     }
 
     if (keyevent.shiftKey && 'A' <= keyevent.key && keyevent.key <= 'Z') {
-	skk.okuriPrefix =
-	    (skk.roman.length > 0) ? skk.roman[0] : keyevent.key.toLowerCase();
-	skk.processRoman(
-	    keyevent.key.toLowerCase(), romanTable, function(text) {
-		skk.okuriText = text;
-		skk.switchMode('conversion');
-	    });
-	console.log(skk.roman);
-	if (skk.currentMode == 'preedit') {
-	    skk.switchMode('okuri-preedit');
-	}
-	return;
+        skk.okuriPrefix =
+            (skk.roman.length > 0) ? skk.roman[0] : keyevent.key.toLowerCase();
+        skk.processRoman(
+            keyevent.key.toLowerCase(), romanTable, function(text) {
+                skk.okuriText = text;
+                skk.switchMode('conversion');
+            });
+        if (skk.currentMode == 'preedit') {
+            skk.switchMode('okuri-preedit');
+        }
+        return;
     }
 
     skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
@@ -100,7 +99,7 @@ function preeditInput(skk, keyevent) {
     });
 
     if (keyevent.key == '>') {
-	skk.roman = '';
+        skk.roman = '';
         skk.switchMode('conversion');
         return;
     }
@@ -108,55 +107,55 @@ function preeditInput(skk, keyevent) {
 
 function updateOkuriComposition(skk) {
     var preedit = '\u25bd' + skk.preedit.slice(0, skk.caret) +
-	'*' + skk.roman + skk.preedit.slice(skk.caret);
+        '*' + skk.roman + skk.preedit.slice(skk.caret);
     var caret = skk.caret + skk.roman.length + 2;
     skk.setComposition(preedit, null, null, caret,
-		       [{start:0, end:preedit.length, style:'underline'}]);
+                       [{start:0, end:preedit.length, style:'underline'}]);
 }
 
 function okuriPreeditInput(skk, keyevent) {
     if (keyevent.key == 'return') {
         skk.commitText(skk.preedit);
         skk.preedit = '';
-	skk.roman = '';
+        skk.roman = '';
         skk.switchMode('hiragana');
         return;
     }
 
     if (keyevent.key == 'escape') {
         skk.preedit = '';
-	skk.roman = '';
+        skk.roman = '';
         skk.switchMode('hiragana');
         return;
     }
 
     if (keyevent.key == 'backspace') {
         skk.roman = skk.roman.slice(0, skk.roman.length - 1);
-	if (skk.roman.length == 0) {
-	    skk.okuriPrefix = '';
-	    skk.roman = '';
-	    skk.switchMode('preedit');
-	    return;
-	}
+        if (skk.roman.length == 0) {
+            skk.okuriPrefix = '';
+            skk.roman = '';
+            skk.switchMode('preedit');
+            return;
+        }
     }
 
     skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
-	skk.okuriText = text;
-	skk.switchMode('conversion');
+        skk.okuriText = text;
+        skk.switchMode('conversion');
     });
 }
 
 function asciiPreeditInput(skk, keyevent) {
     if (keyevent.key == ' ') {
-	skk.switchMode('conversion');
+        skk.switchMode('conversion');
     }
 
     if (preeditKeybind(skk, keyevent)) {
-	return;
+        return;
     }
 
     if (keyevent.key.length != 1) {
-	return;
+        return;
     }
 
     skk.preedit += keyevent.key;
