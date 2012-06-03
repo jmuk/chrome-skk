@@ -97,6 +97,20 @@ function doUpdate(fs) {
   xhr.send();
 }
 
+function syncUserDictionary() {
+  function onInitFS(fs) {
+    fs.root.getFile('user-dictionary.json', {create:true}, function(fileEntry) {
+      fileEntry.createWriter(function(fileWriter) {
+        var bb = new WebKitBlobBuilder();
+        bb.append(JSON.stringify(userDict));
+        fileWriter.write(bb.getBlob('text/plain'));
+      });
+    });
+  }
+  var request = self.requestFileSystem || self.webkitRequestFileSystem;
+  request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
+}
+
 initSystemDictionary = function(dict_name) {
   if (dict_name) {
     dictionary_filename = dict_name;
@@ -106,28 +120,41 @@ initSystemDictionary = function(dict_name) {
     fs.root.getFile('system-dictionary.json', {}, function(fileEntry) {
       fileEntry.file(function(file) {
         var reader = new FileReader();
-          reader.onloadend = function(e) {
+        reader.onloadend = function(e) {
           systemDict = JSON.parse(reader.result);
           console.log({type:'update_status',
                        message: 'loaded_from_file',
                        percent:100});
-          };
-          reader.onerror = function(e) { doUpdate(fs); };
-          reader.readAsText(file);
-        }, function() { doUpdate(fs); });
+        };
+        reader.onerror = function(e) { doUpdate(fs); };
+        reader.readAsText(file);
       }, function() { doUpdate(fs); });
-    }
+    }, function() { doUpdate(fs); });
+    fs.root.getFile('user-dictionary.json', {}, function(fileEntry) {
+      fileEntry.file(function(file) {
+        var reader = new FileReader();
+        reader.onloadend = function(e) {
+          userDict = JSON.parse(reader.result);
+        };
+        reader.readAsText(file);
+      });
+    });
+  }
 
-    var request = self.requestFileSystem || self.webkitRequestFileSystem;
-    request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
+  var request = self.requestFileSystem || self.webkitRequestFileSystem;
+  request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
 };
 
 lookupDictionary = function(reading) {
-  var entries = userDict[reading] || [];
+  var entries = [];
+  var userEntries = userDict[reading] || [];
   var systemEntries = systemDict[reading] || [];
   var word_set = {};
-  for (var i = 0; i < entries.length; i++) {
-    word_set[entries[i].word] = true;
+  for (var i = 0; i < userEntries.length; i++) {
+    if (!word_set[systemEntries[i].word]) {
+      entries.push(userEntries[i]);
+      word_set[userEntries[i].word] = true;
+    }
   }
   for (var i = 0; i < systemEntries.length; i++) {
     if (!word_set[systemEntries[i].word]) {
@@ -144,36 +171,31 @@ lookupDictionary = function(reading) {
 };
 
 recordNewResult = function(reading, newEntry) {
-    var entries = lookupDictionary(reading);
-    var entry = null;
+  var entries = lookupDictionary(reading);
 
-    if (entries) {
-        for (var i = 0; i < entries.length; i++) {
-            if (entries[i].word == newEntry.word) {
-                entry = entries[i];
-                break;
-            }
-        }
+  // Not necessary to modify the user dictionary if it's already the top.
+  if (entries && entries.data[0].word == newEntry.word) {
+    return;
+  }
+
+  var userEntries = userDict[reading];
+  if (userEntries == null) {
+    userDict[reading] = [newEntry];
+  } else {
+    var existing_i = -1;
+    for (var i = 0; i < userEntries.length; i++) {
+      if (userEntries[i].word == newEntry.word) {
+        existing_i = i;
+        break;
+      }
     }
-
-    if (!entry) {
-        userDict[reading] = [newEntry];
-    } else {
-        var userEntries = userDict[reading];
-        var existing_i = -1;
-        for (var i = 0; i < userEntries.length; i++) {
-            if (userEntries[i].word == newEntry.word) {
-                existing_i = i;
-                break;
-            }
-        }
-        if (existing_i >= 0) {
-            userDict[reading] = userEntries.slice(0, existing_i) +
-                userEntries.slice(existing_i + 1);
-        }
-
-        userDict[reading].unshift(entry);
+    if (existing_i >= 0) {
+      userDict[reading].splice(existing_i, 1);
     }
+    userDict[reading].unshift(newEntry);
+  }
+
+  syncUserDictionary();
 };
 
 })();
