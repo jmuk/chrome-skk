@@ -12,7 +12,7 @@ function initPreedit(skk) {
 }
 
 function preeditKeybind(skk, keyevent) {
-  if (keyevent.key == 'return') {
+  if (keyevent.key == 'Enter') {
     skk.commitText(skk.preedit);
     skk.preedit = '';
     skk.roman = '';
@@ -20,28 +20,28 @@ function preeditKeybind(skk, keyevent) {
     return true;
   }
 
-  if (keyevent.key == 'escape' || (keyevent.key == 'g' && keyevent.ctrlKey)) {
+  if (keyevent.key == 'Esc' || (keyevent.key == 'g' && keyevent.ctrlKey)) {
     skk.preedit = '';
     skk.roman = '';
     skk.switchMode('hiragana');
     return true;
   }
 
-  if (keyevent.key == 'left' || (keyevent.key == 'b' && keyevent.ctrlKey)) {
+  if (keyevent.key == 'Left' || (keyevent.key == 'b' && keyevent.ctrlKey)) {
     if (skk.caret > 0) {
       skk.caret--;
     }
     return true;
   }
 
-  if (keyevent.key == 'right' || (keyevent.key == 'f' && keyevent.ctrlKey)) {
+  if (keyevent.key == 'Right' || (keyevent.key == 'f' && keyevent.ctrlKey)) {
     if (skk.caret < skk.preedit.length) {
       skk.caret++;
     }
     return true;
   }
 
-  if (keyevent.key == 'backspace') {
+  if (keyevent.key == 'Backspace') {
     if (skk.roman.length > 0) {
       skk.roman = skk.roman.slice(0, skk.roman.length - 1);
     } else if (skk.preedit.length > 0 && skk.caret > 0) {
@@ -114,7 +114,7 @@ function updateOkuriComposition(skk) {
 }
 
 function okuriPreeditInput(skk, keyevent) {
-  if (keyevent.key == 'return') {
+  if (keyevent.key == 'Enter') {
     skk.commitText(skk.preedit);
     skk.preedit = '';
     skk.roman = '';
@@ -122,14 +122,14 @@ function okuriPreeditInput(skk, keyevent) {
     return;
   }
 
-  if (keyevent.key == 'escape') {
+  if (keyevent.key == 'Esc') {
     skk.preedit = '';
     skk.roman = '';
     skk.switchMode('hiragana');
     return;
   }
 
-  if (keyevent.key == 'backspace') {
+  if (keyevent.key == 'Backspace') {
     skk.roman = skk.roman.slice(0, skk.roman.length - 1);
     if (skk.roman.length == 0) {
       skk.okuriPrefix = '';

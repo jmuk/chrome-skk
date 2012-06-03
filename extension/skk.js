@@ -148,8 +148,8 @@ SKK.prototype.updateComposition = function() {
 
 SKK.prototype.handleKeyEvent = function(keyevent) {
   // Do not handle modifier only keyevent.
-  if (keyevent.key == 'shift' || keyevent.key == 'ctrl' ||
-      keyevent.key == 'alt') {
+  if (keyevent.key == 'Shift' || keyevent.key == 'Ctrl' ||
+      keyevent.key == 'Alt') {
     return;
   }
 
@@ -210,17 +210,17 @@ SKK.prototype.createInnerSKK = function() {
     outer_skk.setComposition(text, null, null, caret, segments);
   };
   inner_skk.sendKeyEvent = function(keyevent) {
-    if (keyevent.key == 'right' ||
+    if (keyevent.key == 'Right' ||
         (keyevent.key == 'f' && keyevent.ctrlKey)) {
       if (inner_skk.commit_caret < inner_skk.commit_text.length) {
         inner_skk.commit_caret++;
       }
-    } else if (keyevent.key == 'left' ||
+    } else if (keyevent.key == 'Left' ||
                (keyevent.key == 'b' && keyevent.ctrlKey)) {
       if (inner_skk.commit_caret > 0) {
         inner_skk.commit_caret--;
       }
-    } else if (keyevent.key == 'backspace') {
+    } else if (keyevent.key == 'Backspace') {
       if (inner_skk.commit_caret > 0) {
         inner_skk.commit_text =
           inner_skk.commit_text.slice(0, inner_skk.commit_caret - 1) +
@@ -228,7 +228,7 @@ SKK.prototype.createInnerSKK = function() {
         inner_skk.commit_caret--;
       }
     }
-    if (keyevent.key == 'escape' ||
+    if (keyevent.key == 'Esc' ||
         (keyevent.key == 'g' && keyevent.ctrlKey)) {
       outer_skk.finishInner(false);
     }

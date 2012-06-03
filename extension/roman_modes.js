@@ -11,12 +11,12 @@ function updateComposition(skk) {
 
 function createRomanInput(table) {
   return function (skk, keyevent) {
-    if (keyevent.key == 'return') {
+    if (keyevent.key == 'Enter') {
       skk.commitText('\n');
       return;
     }
 
-    if (keyevent.key == 'backspace' && skk.roman.length > 0) {
+    if (keyevent.key == 'Backspace' && skk.roman.length > 0) {
       skk.roman = skk.roman.slice(0, skk.roman.length - 1);
       return;
     }
@@ -52,7 +52,7 @@ function createRomanInput(table) {
           skk.caret += text.length;
         });
       return;
-    } else if ((keyevent.key == 'escape' ||
+    } else if ((keyevent.key == 'Esc' ||
                 (keyevent.key == 'g' && keyevent.ctrlKey)) &&
                skk.roman.length > 0) {
       skk.roman = '';

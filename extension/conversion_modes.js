@@ -52,7 +52,7 @@ function conversionMode(skk, keyevent) {
       skk.okuriPrefix = '';
       skk.switchMode('preedit');
     }
-  } else if (keyevent.key == 'escape' ||
+  } else if (keyevent.key == 'Esc' ||
              (keyevent.key == 'g' && keyevent.ctrlKey)) {
     skk.entries = null;
     skk.preedit += skk.okuriText;

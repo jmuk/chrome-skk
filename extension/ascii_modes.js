@@ -6,7 +6,7 @@ function createAsciiLikeMode(conv) {
       return;
     }
 
-    if (keyevent.key == 'return') {
+    if (keyevent.key == 'Return') {
       skk.commitText('\n');
       return;
     }
