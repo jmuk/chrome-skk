@@ -87,7 +87,7 @@ function conversionMode(skk, keyevent) {
   }
 }
 
-SKK.registerMode('conversion', {
+SKK.registerImplicitMode('conversion', {
     keyHandler: conversionMode,
     initHandler: initConversion,
     compositionHandler: updateComposition

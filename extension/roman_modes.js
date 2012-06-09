@@ -70,11 +70,13 @@ function createRomanInput(table) {
 }
 
 SKK.registerMode('hiragana', {
+  displayName: '\u3072\u3089\u304c\u306a',
   keyHandler: createRomanInput(romanTable),
   compositionHandler: updateComposition
 });
 
 SKK.registerMode('katakana', {
+  displayName: '\u30ab\u30bf\u30ab\u30ca',
   keyHandler: createRomanInput(katakanaTable),
   compositionHandler: updateComposition
 });

@@ -162,18 +162,18 @@ function asciiPreeditInput(skk, keyevent) {
   skk.caret++;
 }
 
-SKK.registerMode('preedit', {
+SKK.registerImplicitMode('preedit', {
   keyHandler: preeditInput,
   compositionHandler: updateComposition,
   initHandler: initPreedit
 });
 
-SKK.registerMode('okuri-preedit', {
+SKK.registerImplicitMode('okuri-preedit', {
   keyHandler: okuriPreeditInput,
   compositionHandler: updateOkuriComposition
 });
 
-SKK.registerMode('ascii-preedit', {
+SKK.registerImplicitMode('ascii-preedit', {
   keyHandler: asciiPreeditInput,
   compositionHandler: updateComposition,
     initHandler: initPreedit

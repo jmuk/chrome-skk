@@ -119,16 +119,45 @@ SKK.prototype.processRoman = function (key, table, emitter) {
 };
 
 SKK.prototype.modes = {};
+SKK.prototype.primaryModes = [];
 SKK.registerMode = function(modeName, mode) {
-  SKK.prototype.modes[modeName] = mode;
+  SKK.registerImplicitMode(modeName, mode);
+  SKK.prototype.primaryModes.push(modeName);
 };
+SKK.registerImplicitMode = function(modeName, mode) {
+  SKK.prototype.modes[modeName] = mode;
+}
 
 SKK.prototype.switchMode = function(newMode) {
+  if (newMode == this.currentMode) {
+    // already switched.
+    return;
+  }
+
+  if (this.inner_skk) {
+    this.inner_skk.switchMode(newMode);
+    return;
+  }
+
   this.previousMode = this.currentMode;
   this.currentMode = newMode;
   var initHandler = this.modes[this.currentMode].initHandler;
   if (initHandler) {
     initHandler(this);
+  }
+
+  if (this.primaryModes.indexOf(this.previousMode) >= 0 &&
+      this.primaryModes.indexOf(this.currentMode) >= 0) {
+    chrome.input.ime.updateMenuItems(this.engineId, [
+      {id:'skk-' + this.previousMode,
+       label:this.modes[this.previousMode].displayName,
+       style:'radio',
+       checked:false},
+      {id:'skk-' + this.currentMode,
+       label:this.modes[this.currentMode].displayName,
+       style:'radio',
+       checked:true}
+    ]);
   }
 };
 
@@ -142,7 +171,7 @@ SKK.prototype.updateComposition = function() {
   if (compositionHandler) {
     compositionHandler(this);
   } else {
-    chrome.input.ime.clearComposition(this.context);
+    this.setComposition('', 0, 0, 0, []);
   }
 };
 

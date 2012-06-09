@@ -164,6 +164,89 @@ function setCandidates(contextId, candidates, callback) {
   }
 }
 
+function createMenuItem(menuItem, group_name, targetDiv) {
+  if (menuItem.style == 'radio') {
+    var input = document.createElement('input');
+    input.type = 'radio';
+    input.name = group_name;
+    input.value = menuItem.id;
+    input.id = 'menu-item-input-' +menuItem.id;
+    if (menuItem.checked) {
+      input.checked = 'checked';
+    }
+    if (('enabled' in menuItem) && !menuItem.enabled) {
+      input.disabled = 'disabled';
+    }
+    targetDiv.appendChild(input);
+    input.onchange = function(e) {
+      chrome.input.ime.onMenuItemActivated.emit(
+        mockEngineId, e.target.value);
+    };
+
+    var label = document.createElement('label');
+    label.htmlFor = input.id;
+    label.textContent = menuItem.label;
+    targetDiv.appendChild(label);
+  } else {
+    targetDiv.textContent = menuItem.label;
+    targetDiv.id = 'menu-item-content-' + menuItem.id;
+    targetDiv.onclick = function() {
+      chrome.input.ime.onMenuItemActivated.emit(
+        mockEngineId, e.target.id.slice('menu-item-content-'.length));
+    };
+  }
+}
+
+function setMenuItems(engineId, menuItems, callback) {
+  var itemsDiv = document.getElementById('menu-items');
+  itemsDiv.innerHTML = '';
+  var radio_group_id = 0;
+  for (var i = 0; i < menuItems.length; i++) {
+    if (menuItems[i].style == 'none') {
+      // do nothing.
+    } else if (menuItems[i].style == 'separator') {
+      itemsDiv.appendChild(document.createElement('hr'));
+      radio_group_id++;
+    } else {
+      var item = document.createElement('div');
+      createMenuItem(menuItems[i], 'menu-item-group-' + radio_group_id, item);
+      item.id = 'menu-item-' + menuItems[i].id;
+      itemsDiv.appendChild(item);
+    }
+  }
+
+  if (callback) {
+    callback(true);
+  }
+}
+
+function updateMenuItems(engineId, items, callback) {
+  if (!(items instanceof Array)) {
+    items = [items];
+  }
+
+  for (var i = 0; i < items.length; i++) {
+    var item = document.getElementById('menu-item-' + items[i].id);
+    if (('visible' in items[i]) && !items[i].visible) {
+      item.style.visibility = 'hidden';
+      continue;
+    } else {
+      item.style.visibility = 'visible';
+    }
+    var inputs = item.getElementsByTagName('input');
+    var group_name = '';
+    if (inputs.length > 0) {
+      group_name = inputs[0].name;
+    }
+    item.innerHTML = '';
+    createMenuItem(items[i], group_name, item);
+  }
+
+  if (callback) {
+    callback(true);
+  }
+}
+
 function NotImplemented() {
   console.log("NotImplemented");
 }
@@ -190,8 +273,8 @@ chrome['input'] = {
     setCandidateWindowProperties: setCandidateWindowProperties,
     setCandidates: setCandidates,
     setCursorPosition: NotImplemented,
-    setMenuItems: NotImplemented,
-    updateMenuItems: NotImplemented,
+    setMenuItems: setMenuItems,
+    updateMenuItems: updateMenuItems,
     sendKeyEvent: NotImplemented,
     onActivate: (new EventListener()),
     onDeactivate: (new EventListener()),
