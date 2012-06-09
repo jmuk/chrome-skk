@@ -1,7 +1,11 @@
 var chrome = {};
 (function() {
-function setComposition (
-  ctx, text, selectionStart, selectionEnd, cursor, segments, callback) {
+function setComposition (obj) {
+  var text = obj.text;
+  var selectionStart = obj.selectionStart;
+  var selectionEnd = obj.selectionEnd;
+  var cursor = obj.cursor;
+  var segments = obj.segments;
   var composition = document.getElementById('ime-composition');
   composition.innerHTML = '';
   if (text.length == 0) {
@@ -51,21 +55,15 @@ function setComposition (
   if (cursor == text.length) {
     composition.lastChild.style.borderRight = 'solid 1px';
   }
-
-  if (callback) {
-    callback(true);
-  }
 }
 
-function clearComposition(ctx, callback) {
+function clearComposition(obj) {
   document.getElementById('ime-composition').innerHTML = '';
   document.getElementById('result').style.borderRight = 'solid 1px';
-  if (callback) {
-    callback(true);
-  }
 }
 
-function commitText (ctx, text, callback) {
+function commitText (obj) {
+  var text = obj.text;
   var segments = [];
   for (var i = 0; i < text.length; i++) {
     var c = text[i];
@@ -92,10 +90,6 @@ function commitText (ctx, text, callback) {
     result.appendChild(document.createTextNode(segments.slice(i, j).join('')));
     i = j;
   }
-
-  if (callback) {
-    callback(true);
-  }
 }
 
 var kDefaultCandidateWindowPageSize = 10;
@@ -105,7 +99,8 @@ var candidateWindowProperty = {
   pageSize: kDefaultCandidateWindowPageSize
 };
 
-function setCandidateWindowProperties(engineId, properties, callback) {
+function setCandidateWindowProperties(obj) {
+  var properties = obj.properties;
   document.getElementById('candidate-window').style.display =
     properties.visible ? 'block' : 'none';
   candidateWindowProperty.cursorVisible = properties.cursorVisible;
@@ -120,13 +115,10 @@ function setCandidateWindowProperties(engineId, properties, callback) {
   } else {
     document.getElementById('aux-text').style.display = 'none';
   }
-
-  if (callback) {
-    callback(true);
-  }
 }
 
-function setCandidates(contextId, candidates, callback) {
+function setCandidates(obj) {
+  var candidates = obj.candidates;
   var parent = document.getElementById('candidates');
   parent.innerHTML = '';
   for (var i = 0; i < candidates.length && i < candidateWindowProperty.pageSize;
@@ -157,10 +149,6 @@ function setCandidates(contextId, candidates, callback) {
       chrome.input.onCandidateClicked.emit(mockEngineId, id, 'left');
     };
     parent.appendChild(tr);
-  }
-
-  if (callback) {
-    callback(true);
   }
 }
 
@@ -197,7 +185,8 @@ function createMenuItem(menuItem, group_name, targetDiv) {
   }
 }
 
-function setMenuItems(engineId, menuItems, callback) {
+function setMenuItems(obj) {
+  var menuItems = obj.items;
   var itemsDiv = document.getElementById('menu-items');
   itemsDiv.innerHTML = '';
   var radio_group_id = 0;
@@ -214,16 +203,10 @@ function setMenuItems(engineId, menuItems, callback) {
       itemsDiv.appendChild(item);
     }
   }
-
-  if (callback) {
-    callback(true);
-  }
 }
 
-function updateMenuItems(engineId, items, callback) {
-  if (!(items instanceof Array)) {
-    items = [items];
-  }
+function updateMenuItems(obj) {
+  var items = (items instanceof Array) ? obj.items : [obj.items];
 
   for (var i = 0; i < items.length; i++) {
     var item = document.getElementById('menu-item-' + items[i].id);
@@ -241,14 +224,22 @@ function updateMenuItems(engineId, items, callback) {
     item.innerHTML = '';
     createMenuItem(items[i], group_name, item);
   }
+}
 
+function NotImplemented(obj, callback) {
+  console.log("NotImplemented");
   if (callback) {
-    callback(true);
+    callback(false);
   }
 }
 
-function NotImplemented() {
-  console.log("NotImplemented");
+function Callbacker(func) {
+  return function(obj, callback) {
+    func(obj);
+    if (callback) {
+      callback(true);
+    }
+  };
 }
 
 function EventListener() {
@@ -267,14 +258,14 @@ EventListener.prototype.emit = function() {
 
 chrome['input'] = {
   ime: {
-    setComposition: setComposition,
-    clearComposition: clearComposition,
-    commitText: commitText,
-    setCandidateWindowProperties: setCandidateWindowProperties,
-    setCandidates: setCandidates,
+    setComposition: Callbacker(setComposition),
+    clearComposition: Callbacker(clearComposition),
+    commitText: Callbacker(commitText),
+    setCandidateWindowProperties: Callbacker(setCandidateWindowProperties),
+    setCandidates: Callbacker(setCandidates),
     setCursorPosition: NotImplemented,
-    setMenuItems: setMenuItems,
-    updateMenuItems: updateMenuItems,
+    setMenuItems: Callbacker(setMenuItems),
+    updateMenuItems: Callbacker(updateMenuItems),
     sendKeyEvent: NotImplemented,
     onActivate: (new EventListener()),
     onDeactivate: (new EventListener()),

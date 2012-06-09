@@ -12,7 +12,7 @@ chrome.input.ime.onActivate.addListener(function(engineId) {
                 style:'radio',
                 checked:(modeName == 'hiragana')});
   }
-  chrome.input.ime.setMenuItems(engineId, menus);
+  chrome.input.ime.setMenuItems({engineId:engineId, items:menus});
 });
 
 chrome.input.ime.onFocus.addListener(function(engineId, ctx) {

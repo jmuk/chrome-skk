@@ -12,21 +12,26 @@ function SKK(engineId) {
 }
 
 SKK.prototype.commitText = function(text) {
-  chrome.input.ime.commitText(this.context, text);
+  chrome.input.ime.commitText({contextID:this.context, text:text});
 };
 
 SKK.prototype.setComposition = function(
   text, selectionStart, selectionEnd, caret, segments) {
   chrome.input.ime.setComposition(
-    this.context, text, selectionStart, selectionEnd, caret, segments);
+    {contextID:this.context,
+     text:text,
+     selectionStart:selectionStart,
+     selectionEnd:selectionEnd,
+     cursor:caret,
+     segments:segments});
 };
 
 SKK.prototype.clearComposition = function() {
-  chrome.input.ime.clearComposition(this.context);
+  chrome.input.ime.clearComposition({contextID:this.context});
 };
 
 SKK.prototype.sendKeyEvent = function(keyevent) {
-  chrome.input.ime.sendKeyEvent(this.context, keyevent);
+  chrome.input.ime.sendKeyEvent({contextID:this.context, key:keyevent});
 };
 
 SKK.prototype.updateCandidates = function() {
@@ -36,16 +41,20 @@ SKK.prototype.updateCandidates = function() {
   }
 
   if (!this.entries || this.entries.index <= 2) {
-    chrome.input.ime.setCandidateWindowProperties(this.engineId, {
-      visible:false
-    });
+    chrome.input.ime.setCandidateWindowProperties({
+      contextID:this.context,
+      properties:{
+        visible:false
+      }});
   } else {
-    chrome.input.ime.setCandidateWindowProperties(this.engineId, {
+    chrome.input.ime.setCandidateWindowProperties({
+      contextID:this.context,
+      properties:{
       visible:true,
       cursorVisible:false,
       vertical:true,
       pageSize:7
-    });
+    }});
     var candidates = [];
     for (var i = 0; i < 7; i++) {
       if (i + this.entries.index >= this.entries.entries.length) {
@@ -59,7 +68,8 @@ SKK.prototype.updateCandidates = function() {
         annotation:this.entries.annotation
       });
     }
-    chrome.input.ime.setCandidates(this.context, candidates);
+    chrome.input.ime.setCandidates({
+      contextID:this.context, candidates:candidates});
   }
 };
 
@@ -148,16 +158,18 @@ SKK.prototype.switchMode = function(newMode) {
 
   if (this.primaryModes.indexOf(this.previousMode) >= 0 &&
       this.primaryModes.indexOf(this.currentMode) >= 0) {
-    chrome.input.ime.updateMenuItems(this.engineId, [
-      {id:'skk-' + this.previousMode,
-       label:this.modes[this.previousMode].displayName,
-       style:'radio',
-       checked:false},
-      {id:'skk-' + this.currentMode,
-       label:this.modes[this.currentMode].displayName,
-       style:'radio',
-       checked:true}
-    ]);
+    chrome.input.ime.updateMenuItems({
+      engineID:this.engineId,
+      items:[
+        {id:'skk-' + this.previousMode,
+         label:this.modes[this.previousMode].displayName,
+         style:'radio',
+         checked:false},
+        {id:'skk-' + this.currentMode,
+         label:this.modes[this.currentMode].displayName,
+         style:'radio',
+         checked:true}
+      ]});
   }
 };
 
