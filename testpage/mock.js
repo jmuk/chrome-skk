@@ -268,7 +268,7 @@ chrome['input'] = {
     updateMenuItems: Callbacker(updateMenuItems),
     sendKeyEvent: NotImplemented,
     onActivate: (new EventListener()),
-    onDeactivate: (new EventListener()),
+    onDeactivated: (new EventListener()),
     onFocus: (new EventListener()),
     onBlur: (new EventListener()),
     onInputContextUpdate: (new EventListener()),
