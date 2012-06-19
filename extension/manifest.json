@@ -1,0 +1,34 @@
+{
+  "name": "ChromeOS SKK",
+  "version": "0.1",
+  "manifest_version": 2,
+  "description": "SKK implementation for ChromeOS Input Method API",
+  // "icons":
+  "background": {
+    "scripts": [
+      "skk.js",
+      "roman_table.js",
+      "dictionary_loader.js",
+      "ascii_modes.js",
+      "roman_modes.js",
+      "preedit_modes.js",
+      "conversion_modes.js",
+      "main.js"
+    ]
+  },
+  "input_components": [
+    {
+      "name": "SKK",
+      "type": "ime",
+      "id": "org.jmuk.skk",
+      "description": "An SKK clone",
+      "language": "ja",
+      "layouts": ["jp::jpn", "us"]
+    }
+  ],
+  "permissions": [
+    "input",
+    "http://skk-dict-mirror.appspot.com/*",
+    "https://skk-dict-mirror.appspot.com/*"
+  ]
+}
