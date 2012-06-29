@@ -1,5 +1,5 @@
-function SKK(engineId) {
-  this.engineId = engineId;
+function SKK(engineID) {
+  this.engineID = engineID;
   this.context = null;
   this.currentMode = 'hiragana';
   this.previousMode = null;
@@ -38,13 +38,13 @@ SKK.prototype.updateCandidates = function() {
 
   if (!this.entries || this.entries.index <= 2) {
     chrome.input.ime.setCandidateWindowProperties({
-      contextID:this.context,
+      engineID:this.engineID,
       properties:{
         visible:false
       }});
   } else {
     chrome.input.ime.setCandidateWindowProperties({
-      contextID:this.context,
+      engineID:this.engineID,
       properties:{
       visible:true,
       cursorVisible:false,
@@ -155,7 +155,7 @@ SKK.prototype.switchMode = function(newMode) {
   if (this.primaryModes.indexOf(this.previousMode) >= 0 &&
       this.primaryModes.indexOf(this.currentMode) >= 0) {
     chrome.input.ime.updateMenuItems({
-      engineID:this.engineId,
+      engineID:this.engineID,
       items:[
         {id:'skk-' + this.previousMode,
          label:this.modes[this.previousMode].displayName,
@@ -207,7 +207,7 @@ SKK.prototype.handleKeyEvent = function(keyevent) {
 
 SKK.prototype.createInnerSKK = function() {
   var outer_skk = this;
-  var inner_skk = new SKK(this.engineId);
+  var inner_skk = new SKK(this.engineID);
   inner_skk.commit_text = '';
   inner_skk.commit_caret = 0;
   inner_skk.commitText = function(text) {

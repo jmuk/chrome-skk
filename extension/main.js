@@ -1,8 +1,8 @@
 (function() {
 var skk;
 
-chrome.input.ime.onActivate.addListener(function(engineId) {
-  skk = new SKK(engineId);
+chrome.input.ime.onActivate.addListener(function(engineID) {
+  skk = new SKK(engineID);
   skk.initDictionary();
   var menus = [];
   for (var i = 0; i <skk.primaryModes.length; i++) {
@@ -12,22 +12,22 @@ chrome.input.ime.onActivate.addListener(function(engineId) {
                 style:'radio',
                 checked:(modeName == 'hiragana')});
   }
-  chrome.input.ime.setMenuItems({engineId:engineId, items:menus});
+  chrome.input.ime.setMenuItems({engineID:engineID, items:menus});
 });
 
-chrome.input.ime.onFocus.addListener(function(engineId, ctx) {
-  skk.context = ctx;
+chrome.input.ime.onFocus.addListener(function(context) {
+  skk.context = context.contextID;
 });
 
-chrome.input.ime.onKeyEvent.addListener(function(engineId, keyevent) {
-  if (keyevent.type != 'keydown') {
+chrome.input.ime.onKeyEvent.addListener(function(engineID, keyData) {
+  if (keyData.type != 'keydown') {
     return false;
   }
 
-  return skk.handleKeyEvent(keyevent);
+  return skk.handleKeyEvent(keyData);
 });
 
-chrome.input.ime.onMenuItemActivated.addListener(function(engineId, name) {
+chrome.input.ime.onMenuItemActivated.addListener(function(engineID, name) {
   var modeName = name.slice('skk-'.length);
   skk.switchMode(modeName);
 });
