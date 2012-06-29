@@ -21,10 +21,10 @@ chrome.input.ime.onFocus.addListener(function(engineId, ctx) {
 
 chrome.input.ime.onKeyEvent.addListener(function(engineId, keyevent) {
   if (keyevent.type != 'keydown') {
-    return;
+    return false;
   }
 
-  skk.handleKeyEvent(keyevent);
+  return skk.handleKeyEvent(keyevent);
 });
 
 chrome.input.ime.onMenuItemActivated.addListener(function(engineId, name) {

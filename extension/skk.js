@@ -30,10 +30,6 @@ SKK.prototype.clearComposition = function() {
   chrome.input.ime.clearComposition({contextID:this.context});
 };
 
-SKK.prototype.sendKeyEvent = function(keyevent) {
-  chrome.input.ime.sendKeyEvent({contextID:this.context, key:keyevent});
-};
-
 SKK.prototype.updateCandidates = function() {
   if (this.internal_skk) {
     this.internal_skk.updateCandidates();
@@ -191,20 +187,22 @@ SKK.prototype.handleKeyEvent = function(keyevent) {
   // Do not handle modifier only keyevent.
   if (keyevent.key == 'Shift' || keyevent.key == 'Ctrl' ||
       keyevent.key == 'Alt') {
-    return;
+    return false;
   }
 
+  var consumed = false;
   if (this.inner_skk) {
-    this.inner_skk.handleKeyEvent(keyevent);
+    consumed = this.inner_skk.handleKeyEvent(keyevent);
   } else {
     var keyHandler = this.modes[this.currentMode].keyHandler;
     if (keyHandler) {
-      keyHandler(this, keyevent);
+      consumed = keyHandler(this, keyevent);
     }
   }
 
   this.updateComposition();
   this.updateCandidates();
+  return consumed;
 };
 
 SKK.prototype.createInnerSKK = function() {
@@ -250,7 +248,13 @@ SKK.prototype.createInnerSKK = function() {
     var segments = [{start:0, end:text.length, style:'underline'}];
     outer_skk.setComposition(text, null, null, caret, segments);
   };
-  inner_skk.sendKeyEvent = function(keyevent) {
+
+  var original_handler = inner_skk.prototype.handleKeyEvent;
+  inner_skk.handleKeyEvent = function(keyevent) {
+    if (original_handler(keyevent)) {
+      return true;
+    }
+
     if (keyevent.key == 'Right' ||
         (keyevent.key == 'f' && keyevent.ctrlKey)) {
       if (inner_skk.commit_caret < inner_skk.commit_text.length) {
@@ -273,6 +277,8 @@ SKK.prototype.createInnerSKK = function() {
         (keyevent.key == 'g' && keyevent.ctrlKey)) {
       outer_skk.finishInner(false);
     }
+
+    return true;
   };
 
   outer_skk.inner_skk = inner_skk;

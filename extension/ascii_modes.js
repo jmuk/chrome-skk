@@ -3,21 +3,21 @@ function createAsciiLikeMode(conv) {
   return function(skk, keyevent) {
     if (keyevent.ctrlKey && keyevent.key == 'j') {
       skk.switchMode('hiragana');
-      return;
+      return true;
     }
 
     if (keyevent.key == 'Return') {
       skk.commitText('\n');
-      return;
+      return true;
     }
 
     if (keyevent.key.length > 1 ||
         keyevent.altKey || keyevent.ctrlKey) {
-      skk.sendKeyEvent(keyevent);
-      return;
+      return false;
     }
 
     skk.commitText(conv(keyevent.key));
+    return true;
   };
 }
 

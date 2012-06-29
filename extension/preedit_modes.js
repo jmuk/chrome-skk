@@ -66,16 +66,16 @@ function preeditInput(skk, keyevent) {
     }
     skk.roman = '';
     skk.switchMode('conversion');
-    return;
+    return true;
   }
 
   if (preeditKeybind(skk, keyevent)) {
-    return;
+    return true;
   }
 
   if (keyevent.key.length != 1) {
     // special keys -- ignore for now
-    return;
+    return false;
   }
 
   if (keyevent.shiftKey && 'A' <= keyevent.key && keyevent.key <= 'Z') {
@@ -89,7 +89,7 @@ function preeditInput(skk, keyevent) {
     if (skk.currentMode == 'preedit') {
       skk.switchMode('okuri-preedit');
     }
-    return;
+    return true;
   }
 
   skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
@@ -101,8 +101,8 @@ function preeditInput(skk, keyevent) {
   if (keyevent.key == '>') {
     skk.roman = '';
     skk.switchMode('conversion');
-    return;
   }
+  return true;
 }
 
 function updateOkuriComposition(skk) {

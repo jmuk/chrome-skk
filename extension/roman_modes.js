@@ -12,36 +12,35 @@ function updateComposition(skk) {
 function createRomanInput(table) {
   return function (skk, keyevent) {
     if (keyevent.key == 'Enter') {
-      skk.commitText('\n');
-      return;
+      return false;
     }
 
     if (keyevent.key == 'Backspace' && skk.roman.length > 0) {
       skk.roman = skk.roman.slice(0, skk.roman.length - 1);
-      return;
+      return true;
     }
 
     if (keyevent.key == 'q') {
       skk.roman = '';
       skk.switchMode(
         (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
-      return;
+      return true;
     } else if (keyevent.key == 'Q') {
       skk.roman = '';
       skk.switchMode('preedit');
-      return;
+      return true;
     } else if (keyevent.key == 'l') {
       skk.roman = '';
       skk.switchMode('ascii');
-      return;
+      return true;
     } else if (keyevent.key == 'L') {
       skk.roman = '';
       skk.switchMode('full-ascii');
-      return;
+      return true;
     } else if (keyevent.key == '/') {
       skk.roman = '';
       skk.switchMode('ascii-preedit');
-      return;
+      return true;
     } else if (keyevent.shiftKey &&
                keyevent.key >= 'A' && keyevent.key < 'Z') {
       skk.switchMode('preedit');
@@ -51,21 +50,21 @@ function createRomanInput(table) {
             text + skk.preedit.slice(skk.caret);
           skk.caret += text.length;
         });
-      return;
+      return true;
     } else if ((keyevent.key == 'Esc' ||
                 (keyevent.key == 'g' && keyevent.ctrlKey)) &&
                skk.roman.length > 0) {
       skk.roman = '';
-      return;
+      return true;
     } else if (keyevent.key.length != 1 ||
                keyevent.ctrlKey || keyevent.altKey) {
-      skk.sendKeyEvent(keyevent);
-      return;
+      return false;
     }
 
     skk.processRoman(keyevent.key, table, function(text) {
       skk.commitText(text);
       });
+    return true;
   };
 }
 

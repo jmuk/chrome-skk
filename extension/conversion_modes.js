@@ -81,10 +81,11 @@ function conversionMode(skk, keyevent) {
       skk.preedit = '';
       skk.switchMode('hiragana');
       if (use_keyevent) {
-        skk.handleKeyEvent(keyevent);
+        return skk.handleKeyEvent(keyevent);
       }
     }
   }
+  return true;
 }
 
 SKK.registerImplicitMode('conversion', {
