@@ -74,7 +74,7 @@ function parseData(data) {
 
 function doUpdate(fs) {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', '/' + dictionary_filename);
+  xhr.open('GET', 'https://skk-dict-mirror.appspot.com/' + dictionary_filename);
   xhr.onreadystatechange = function() {
     if (xhr.readyState != 4) {
       return;
