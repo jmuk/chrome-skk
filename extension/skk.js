@@ -179,14 +179,13 @@ SKK.prototype.updateComposition = function() {
   if (compositionHandler) {
     compositionHandler(this);
   } else {
-    this.setComposition('', 0, 0, 0, []);
+    this.clearComposition();
   }
 };
 
 SKK.prototype.handleKeyEvent = function(keyevent) {
   // Do not handle modifier only keyevent.
-  if (keyevent.key == 'Shift' || keyevent.key == 'Ctrl' ||
-      keyevent.key == 'Alt') {
+  if (keyevent.key.charCodeAt(0) == 0xFFFD) {
     return false;
   }
 
