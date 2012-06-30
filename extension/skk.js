@@ -15,15 +15,20 @@ SKK.prototype.commitText = function(text) {
   chrome.input.ime.commitText({contextID:this.context, text:text});
 };
 
-SKK.prototype.setComposition = function(
-  text, selectionStart, selectionEnd, caret, segments) {
-  chrome.input.ime.setComposition(
-    {contextID:this.context,
-     text:text,
-     selectionStart:selectionStart,
-     selectionEnd:selectionEnd,
-     cursor:caret,
-     segments:segments});
+SKK.prototype.setComposition = function(text, cursor, args) {
+  var allowed_fields = ['selectionStart', 'selectionEnd'];
+  var obj = {
+    contextID:this.context,
+    text:text,
+    cursor:cursor};
+  args = args || {};
+  for (var i = 0; i < allowed_fields.length; i++) {
+    var field = allowed_fields[i];
+    if (args[field]) {
+      obj[field] = args[field];
+    }
+  }
+  chrome.input.ime.setComposition(obj);
 };
 
 SKK.prototype.clearComposition = function() {
@@ -132,7 +137,7 @@ SKK.registerMode = function(modeName, mode) {
 };
 SKK.registerImplicitMode = function(modeName, mode) {
   SKK.prototype.modes[modeName] = mode;
-}
+};
 
 SKK.prototype.switchMode = function(newMode) {
   if (newMode == this.currentMode) {
@@ -221,31 +226,24 @@ SKK.prototype.createInnerSKK = function() {
     inner_skk.commit_caret += text.length;
   };
 
-  inner_skk.setComposition = function(
-    text, selectionStart, selectionEnd, caret, segments) {
+  inner_skk.setComposition = function(text, cursor, args) {
     var prefix = '\u25bc' + outer_skk.preedit + '\u3010' +
       inner_skk.commit_text;
-    selectionStart += prefix.length;
-    selectionEnd += prefix.length;
-    caret += outer_skk.preedit.length + 2 + inner_skk.commit_caret;
-    var real_segments = [{start:0, end:prefix.length, style:'underline'}];
-    for (var i = 0; i < segments.length; i++) {
-      real_segments.push({
-        start:segments[i].start + prefix.length,
-        end:segments[i].start + prefix.length,
-        style:segments[i].style
-      });
+    if (args && args.selectionStart) {
+      args.selectionStart += prefix.length;
     }
+    if (args && args.selectionEnd) {
+      args.selectionEnd += prefix.length;
+    }
+    cursor += outer_skk.preedit.length + 2 + inner_skk.commit_caret;
     outer_skk.setComposition(
-      prefix + text + '\u3011', selectionStart, selectionEnd, caret,
-      segments);
+      prefix + text + '\u3011', cursor, args);
   };
   inner_skk.clearComposition = function() {
     var text = '\u25bc' + outer_skk.preedit + '\u3010' +
       inner_skk.commit_text + '\u3011';
-    var caret = outer_skk.preedit.length + 2 + inner_skk.commit_caret;
-    var segments = [{start:0, end:text.length, style:'underline'}];
-    outer_skk.setComposition(text, null, null, caret, segments);
+    var cursor = outer_skk.preedit.length + 2 + inner_skk.commit_caret;
+    outer_skk.setComposition(text, cursor);
   };
 
   var original_handler = inner_skk.prototype.handleKeyEvent;

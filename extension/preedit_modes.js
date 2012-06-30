@@ -3,8 +3,7 @@ function updateComposition(skk) {
   var preedit = '\u25bd' + skk.preedit.slice(0, skk.caret) + skk.roman +
     skk.preedit.slice(skk.caret);
   var caret = skk.caret + skk.roman.length + 1;
-  skk.setComposition(preedit, null, null, caret,
-    [{start:0, end:preedit.length, style:'underline'}]);
+  skk.setComposition(preedit, caret);
 }
 
 function initPreedit(skk) {
@@ -109,8 +108,7 @@ function updateOkuriComposition(skk) {
   var preedit = '\u25bd' + skk.preedit.slice(0, skk.caret) +
     '*' + skk.roman + skk.preedit.slice(skk.caret);
   var caret = skk.caret + skk.roman.length + 2;
-  skk.setComposition(preedit, null, null, caret,
-    [{start:0, end:preedit.length, style:'underline'}]);
+  skk.setComposition(preedit, caret);
 }
 
 function okuriPreeditInput(skk, keyevent) {
@@ -176,6 +174,6 @@ SKK.registerImplicitMode('okuri-preedit', {
 SKK.registerImplicitMode('ascii-preedit', {
   keyHandler: asciiPreeditInput,
   compositionHandler: updateComposition,
-    initHandler: initPreedit
+  initHandler: initPreedit
 });
 })();

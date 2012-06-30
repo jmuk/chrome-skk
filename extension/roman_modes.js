@@ -1,9 +1,7 @@
 (function() {
 function updateComposition(skk) {
   if (skk.roman.length > 0) {
-    skk.setComposition(
-      skk.roman, null, null, skk.roman.length,
-      [{start:0, end:skk.roman.length - 1, style:'underline'}]);
+    skk.setComposition(skk.roman, skk.roman.length);
   } else {
     skk.clearComposition();
   }

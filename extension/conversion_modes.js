@@ -13,8 +13,8 @@ function updateComposition(skk) {
   if (entry.annotation) {
     preedit += ';' + entry.annotation;
   }
-  skk.setComposition(preedit, 1, preedit.length, preedit.length,
-    [{start:0, end:1, style:'underline'}]);
+  skk.setComposition(preedit, 1, {selectionStart:preedit.length,
+                                  selectionEnd:preedit.length});
 }
 
 function initConversion(skk) {
