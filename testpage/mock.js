@@ -294,7 +294,7 @@ function emitKeyEvent(ev) {
   // rented from http://www.selfcontained.us/2009/09/16/getting-keycode-values-in-javascript/
   // and keyname from http://src.chromium.org/viewvc/chrome/trunk/src/chrome/browser/chromeos/input_method/ibus_keymap.cc?view=markup
   var keyMap = {
-    8:"Backspace", 9:"Tab", 13:"Enter", 16:"Shift", 17:"Ctrl", 18:"Alt",
+    8:"Backspace", 9:"Tab", 13:"Enter", 16:"\uFFFD", 17:"\uFFFD", 18:"\uFFFD",
     27:"Esc", 32:" ", 33:"PageUp", 34:"PageDown", 35:"End", 36:"Home",
     37:"Left", 38:"Up", 39:"Right", 40:"Down", 43:"+", 46:"Delete",
     48:"0", 49:"1", 50:"2", 51:"3", 52:"4", 53:"5", 54:"6", 55:"7", 56:"8",
@@ -310,7 +310,7 @@ function emitKeyEvent(ev) {
     189:"-", 190:".", 191:"/", 192:"`", 219:"[",  220:"\\", 221:"]", 222:"'"
   };
   var shiftKeyMap = {
-    16:"shift", 192:"~", 48:")", 49:"!", 50:"@", 51:"#", 52:"$", 53:"%",
+    16:"\uFFFD", 192:"~", 48:")", 49:"!", 50:"@", 51:"#", 52:"$", 53:"%",
     54:"^", 55:"&", 56:"*", 57:"(", 109:"_", 61:"+", 219:"{", 221:"}",
     220:"|", 59:":", 222:"\"", 187:"+", 188:"<", 189:"_", 190:">", 191:"?",
     192: '~'
