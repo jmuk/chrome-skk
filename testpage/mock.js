@@ -5,7 +5,7 @@ function setComposition (obj) {
   var selectionStart = obj.selectionStart;
   var selectionEnd = obj.selectionEnd;
   var cursor = obj.cursor;
-  var segments = obj.segments;
+  var segments = obj.segments || [];
   var composition = document.getElementById('ime-composition');
   composition.innerHTML = '';
   if (text.length == 0) {
