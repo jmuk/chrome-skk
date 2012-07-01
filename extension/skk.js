@@ -36,8 +36,8 @@ SKK.prototype.clearComposition = function() {
 };
 
 SKK.prototype.updateCandidates = function() {
-  if (this.internal_skk) {
-    this.internal_skk.updateCandidates();
+  if (this.inner_skk) {
+    this.inner_skk.updateCandidates();
     return;
   }
 
