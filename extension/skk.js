@@ -213,17 +213,12 @@ SKK.prototype.createInnerSKK = function() {
   var outer_skk = this;
   var inner_skk = new SKK(this.engineID);
   inner_skk.commit_text = '';
-  inner_skk.commit_caret = 0;
+  inner_skk.commit_cursor = 0;
   inner_skk.commitText = function(text) {
-    if (text == '\n') {
-      outer_skk.finishInner(true);
-      return;
-    }
-
     inner_skk.commit_text =
-      inner_skk.commit_text.slice(0, inner_skk.commit_caret) +
-      text + inner_skk.commit_text.slice(inner_skk.commit_caret);
-    inner_skk.commit_caret += text.length;
+      inner_skk.commit_text.slice(0, inner_skk.commit_cursor) +
+      text + inner_skk.commit_text.slice(inner_skk.commit_cursor);
+    inner_skk.commit_cursor += text.length;
   };
 
   inner_skk.setComposition = function(text, cursor, args) {
@@ -235,18 +230,18 @@ SKK.prototype.createInnerSKK = function() {
     if (args && args.selectionEnd) {
       args.selectionEnd += prefix.length;
     }
-    cursor += outer_skk.preedit.length + 2 + inner_skk.commit_caret;
+    cursor += outer_skk.preedit.length + 2 + inner_skk.commit_cursor;
     outer_skk.setComposition(
       prefix + text + '\u3011', cursor, args);
   };
   inner_skk.clearComposition = function() {
     var text = '\u25bc' + outer_skk.preedit + '\u3010' +
       inner_skk.commit_text + '\u3011';
-    var cursor = outer_skk.preedit.length + 2 + inner_skk.commit_caret;
+    var cursor = outer_skk.preedit.length + 2 + inner_skk.commit_cursor;
     outer_skk.setComposition(text, cursor);
   };
 
-  var original_handler = inner_skk.prototype.handleKeyEvent;
+  var original_handler = SKK.prototype.handleKeyEvent.bind(inner_skk);
   inner_skk.handleKeyEvent = function(keyevent) {
     if (original_handler(keyevent)) {
       return true;
@@ -254,23 +249,26 @@ SKK.prototype.createInnerSKK = function() {
 
     if (keyevent.key == 'Right' ||
         (keyevent.key == 'f' && keyevent.ctrlKey)) {
-      if (inner_skk.commit_caret < inner_skk.commit_text.length) {
-        inner_skk.commit_caret++;
+      if (inner_skk.commit_cursor < inner_skk.commit_text.length) {
+        inner_skk.commit_cursor++;
       }
     } else if (keyevent.key == 'Left' ||
                (keyevent.key == 'b' && keyevent.ctrlKey)) {
-      if (inner_skk.commit_caret > 0) {
-        inner_skk.commit_caret--;
+      if (inner_skk.commit_cursor > 0) {
+        inner_skk.commit_cursor--;
       }
     } else if (keyevent.key == 'Backspace') {
-      if (inner_skk.commit_caret > 0) {
+      if (inner_skk.commit_text == '') {
+        outer_skk.finishInner(false);
+      } else if (inner_skk.commit_cursor > 0) {
         inner_skk.commit_text =
-          inner_skk.commit_text.slice(0, inner_skk.commit_caret - 1) +
-          inner_skk.commit_text.slice(inner_skk.commit_caret);
-        inner_skk.commit_caret--;
+          inner_skk.commit_text.slice(0, inner_skk.commit_cursor - 1) +
+          inner_skk.commit_text.slice(inner_skk.commit_cursor);
+        inner_skk.commit_cursor--;
       }
-    }
-    if (keyevent.key == 'Esc' ||
+    } else if (keyevent.key == 'Enter') {
+      outer_skk.finishInner(true);
+    } else if (keyevent.key == 'Esc' ||
         (keyevent.key == 'g' && keyevent.ctrlKey)) {
       outer_skk.finishInner(false);
     }

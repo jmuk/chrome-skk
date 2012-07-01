@@ -85,8 +85,10 @@ function doUpdate(fs) {
       'system-dictionary.json', {create:true}, function(fileEntry) {
         fileEntry.createWriter(function(fileWriter) {
           fileWriter.onwriteend = function(e) {
+            var dict_size = 0;
+            for (var w in systemDict) dict_size++;
             console.log(
-              {'type':'update_status', 'percent':100});
+              {'type':'update_status', 'percent':100, 'words':dict_size});
             };
             var bb = new WebKitBlobBuilder();
             bb.append(JSON.stringify(systemDict));

@@ -60,7 +60,7 @@ function conversionMode(skk, keyevent) {
     skk.okuriPrefix = '';
     skk.switchMode('preedit');
   } else {
-    var use_keyevent = (keyevent.key != 'return');
+    var use_keyevent = (keyevent.key != 'Enter');
     if (skk.entries.index > 2 &&
         (!keyevent.ctrlKey && !keyevent.shiftKey && !keyevent.altKey &&
          'asdfjkl'.indexOf(keyevent.key) >= 0)) {
@@ -84,7 +84,10 @@ function conversionMode(skk, keyevent) {
         return skk.handleKeyEvent(keyevent);
       }
     }
+    return use_keyevent;
   }
+
+  // not reached.
   return true;
 }
 
