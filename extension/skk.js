@@ -98,33 +98,33 @@ SKK.prototype.processRoman = function (key, table, emitter) {
     return starting;
   }
 
-  this.roman += key;
-  if (table[this.roman]) {
-    emitter(table[this.roman]);
+  var roman = this.roman + key;
+  if (table[roman]) {
     this.roman = '';
+    emitter(table[roman]);
     return;
   }
 
-  if (this.roman.length > 1 && this.roman[0] == this.roman[1]) {
+  if (roman.length > 1 && roman[0] == roman[1]) {
+    this.roman = roman.slice(1);
     emitter(table['xtu']);
-    this.roman = this.roman.slice(1);
   }
 
-  if (isStarting(this.roman, table)) {
+  if (isStarting(roman, table)) {
+    this.roman = roman;
     return;
   }
 
-  if (this.roman[0] == 'n') {
+  if (roman[0] == 'n') {
     emitter(table['nn']);
   }
 
   if (table[key]) {
-    emitter(table[key]);
     this.roman = '';
+    emitter(table[key]);
   } else if (isStarting(key, table)) {
     this.roman = key;
   } else {
-    emitter(key);
     this.roman = '';
   }
 };

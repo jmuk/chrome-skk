@@ -22,7 +22,9 @@ var romanTable = {
   xtu:'\u3063', nn:'\u3093',
 
   ',':'\u3001', '.':'\u3002', '[':'\uff62', ']':'\uff63', ' ':'\u3000',
-  '-':'\u30fc'
+  '-':'\u30fc',
+
+  'z.': '\u2026', 'z,': '\u2025', 'z/': '\u30fb', 'z-':'\u301c', 'zh': '\u2190','zj': '\u2193', 'zk': '\u2191', 'zl': '\u2192'
 };
 
 var katakanaTable = {};
@@ -61,6 +63,8 @@ function initRomanTable() {
       var c = hiragana.charCodeAt(i);
       if (c > 0x3040 && c < 0x30a0) {
         katakana += String.fromCharCode(c + 0x60);
+      } else {
+        katakana += String.fromCharCode(c);
       }
     }
     katakanaTable[key] = katakana;

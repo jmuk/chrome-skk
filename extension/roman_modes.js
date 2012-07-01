@@ -18,29 +18,32 @@ function createRomanInput(table) {
       return true;
     }
 
-    if (keyevent.key == 'q') {
-      skk.roman = '';
-      skk.switchMode(
-        (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
-      return true;
-    } else if (keyevent.key == 'Q') {
-      skk.roman = '';
-      skk.switchMode('preedit');
-      return true;
-    } else if (keyevent.key == 'l') {
-      skk.roman = '';
-      skk.switchMode('ascii');
-      return true;
-    } else if (keyevent.key == 'L') {
-      skk.roman = '';
-      skk.switchMode('full-ascii');
-      return true;
-    } else if (keyevent.key == '/') {
-      skk.roman = '';
-      skk.switchMode('ascii-preedit');
-      return true;
-    } else if (keyevent.shiftKey &&
-               keyevent.key >= 'A' && keyevent.key < 'Z') {
+    if (skk.roman.length == 0) {
+      if (keyevent.key == 'q') {
+        skk.roman = '';
+        skk.switchMode(
+          (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
+        return true;
+      } else if (keyevent.key == 'Q') {
+        skk.roman = '';
+        skk.switchMode('preedit');
+        return true;
+      } else if (keyevent.key == 'l') {
+        skk.roman = '';
+        skk.switchMode('ascii');
+        return true;
+      } else if (keyevent.key == 'L') {
+        skk.roman = '';
+        skk.switchMode('full-ascii');
+        return true;
+      } else if (keyevent.key == '/') {
+        skk.roman = '';
+        skk.switchMode('ascii-preedit');
+        return true;
+      }
+    }
+    if (keyevent.shiftKey &&
+        keyevent.key >= 'A' && keyevent.key < 'Z') {
       skk.switchMode('preedit');
       skk.processRoman(
         keyevent.key.toLowerCase(), romanTable, function(text) {

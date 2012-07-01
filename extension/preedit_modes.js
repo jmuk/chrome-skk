@@ -77,13 +77,19 @@ function preeditInput(skk, keyevent) {
     return false;
   }
 
-  if (keyevent.shiftKey && 'A' <= keyevent.key && keyevent.key <= 'Z') {
+  if (skk.preedit.length > 0 &&
+      keyevent.shiftKey && 'A' <= keyevent.key && keyevent.key <= 'Z') {
     skk.okuriPrefix =
       (skk.roman.length > 0) ? skk.roman[0] : keyevent.key.toLowerCase();
     skk.processRoman(
       keyevent.key.toLowerCase(), romanTable, function(text) {
-        skk.okuriText = text;
-        skk.switchMode('conversion');
+        if (skk.roman.length > 0) {
+          skk.preedit += text;
+          skk.caret += text.length;
+        } else {
+          skk.okuriText = text;
+          skk.switchMode('conversion');
+        }
       });
     if (skk.currentMode == 'preedit') {
       skk.switchMode('okuri-preedit');
@@ -106,7 +112,7 @@ function preeditInput(skk, keyevent) {
 
 function updateOkuriComposition(skk) {
   var preedit = '\u25bd' + skk.preedit.slice(0, skk.caret) +
-    '*' + skk.roman + skk.preedit.slice(skk.caret);
+    '*' + skk.okuriText + skk.roman + skk.preedit.slice(skk.caret);
   var caret = skk.caret + skk.roman.length + 2;
   skk.setComposition(preedit, caret);
 }
@@ -124,6 +130,7 @@ function okuriPreeditInput(skk, keyevent) {
     skk.preedit = '';
     skk.roman = '';
     skk.okuriPrefix = '';
+    skk.okuriText = '';
     skk.switchMode('hiragana');
     return true;
   }
@@ -139,8 +146,11 @@ function okuriPreeditInput(skk, keyevent) {
   }
 
   skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
-    skk.okuriText = text;
-    skk.switchMode('conversion');
+    console.log(skk.roman);
+    skk.okuriText += text;
+    if (skk.roman.length == 0) {
+      skk.switchMode('conversion');
+    }
   });
   return true;
 }
