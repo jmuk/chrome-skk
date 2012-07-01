@@ -221,24 +221,33 @@ SKK.prototype.createInnerSKK = function() {
     inner_skk.commit_cursor += text.length;
   };
 
+  inner_skk.getPrefix = function() {
+    var prefix_text = '\u25bc' + outer_skk.preedit;
+    if (outer_skk.okuriText.length > 0) {
+      prefix_text += '*' + outer_skk.okuriText;
+    }
+
+    var cursor = outer_skk.preedit.length + 2 + inner_skk.commit_cursor;
+    if (outer_skk.okuriText.length > 0) {
+      cursor += outer_skk.okuriText.length + 1;
+    }
+    return {text:prefix_text + '\u3010' + this.commit_text, cursor:cursor};
+  };
+
   inner_skk.setComposition = function(text, cursor, args) {
-    var prefix = '\u25bc' + outer_skk.preedit + '\u3010' +
-      inner_skk.commit_text;
+    var prefix = this.getPrefix();
     if (args && args.selectionStart) {
-      args.selectionStart += prefix.length;
+      args.selectionStart += prefix.text.length;
     }
     if (args && args.selectionEnd) {
-      args.selectionEnd += prefix.length;
+      args.selectionEnd += prefix.text.length;
     }
-    cursor += outer_skk.preedit.length + 2 + inner_skk.commit_cursor;
     outer_skk.setComposition(
-      prefix + text + '\u3011', cursor, args);
+      prefix.text + text + '\u3011', prefix.cursor, args);
   };
   inner_skk.clearComposition = function() {
-    var text = '\u25bc' + outer_skk.preedit + '\u3010' +
-      inner_skk.commit_text + '\u3011';
-    var cursor = outer_skk.preedit.length + 2 + inner_skk.commit_cursor;
-    outer_skk.setComposition(text, cursor);
+    var prefix = this.getPrefix();
+    outer_skk.setComposition(prefix.text + '\u3011', prefix.cursor);
   };
 
   var original_handler = SKK.prototype.handleKeyEvent.bind(inner_skk);
@@ -288,17 +297,23 @@ SKK.prototype.finishInner = function(successfully) {
 
   this.inner_skk = null;
   this.roman = '';
-  this.okuriText = '';
-  this.okuriPrefix = '';
 
   if (successfully) {
     this.entries = null;
     this.preedit = '';
+    this.okuriText = '';
+    this.okuriPrefix = '';
     this.switchMode('hiragana');
   } else {
     if (this.previousMode != 'conversion') {
       this.entries = null;
     }
+    if (this.previousMode == 'okuri-preedit') {
+      this.preedit += this.okuriText;
+      this.previousMode = 'preedit';
+    }
+    this.okuriText = '';
+    this.okuriPrefix = '';
     this.switchMode(this.previousMode);
   }
 };

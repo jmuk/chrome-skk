@@ -120,9 +120,10 @@ function okuriPreeditInput(skk, keyevent) {
     return true;
   }
 
-  if (keyevent.key == 'Esc') {
+  if (keyevent.key == 'Esc' || (keyevent.key == 'g' && keyevent.ctrlKey)) {
     skk.preedit = '';
     skk.roman = '';
+    skk.okuriPrefix = '';
     skk.switchMode('hiragana');
     return true;
   }
