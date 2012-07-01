@@ -1,9 +1,9 @@
 (function() {
 var skk;
+var dictionary = new Dictionary();
 
 chrome.input.ime.onActivate.addListener(function(engineID) {
-  skk = new SKK(engineID);
-  skk.initDictionary();
+  skk = new SKK(engineID, dictionary);
   var menus = [];
   for (var i = 0; i <skk.primaryModes.length; i++) {
     var modeName = skk.primaryModes[i];

@@ -69,7 +69,7 @@ function conversionMode(skk, keyevent) {
     }
     var entry = skk.entries.entries[skk.entries.index];
     skk.commitText(entry.word + skk.okuriText);
-    recordNewResult(skk.preedit, entry);
+    skk.recordNewResult(entry);
     skk.clearComposition();
     skk.entries = null;
     skk.okuriText = '';

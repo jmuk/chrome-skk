@@ -146,7 +146,6 @@ function okuriPreeditInput(skk, keyevent) {
   }
 
   skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
-    console.log(skk.roman);
     skk.okuriText += text;
     if (skk.roman.length == 0) {
       skk.switchMode('conversion');

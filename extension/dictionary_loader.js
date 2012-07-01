@@ -1,13 +1,11 @@
-var initSystemDictionary = null;
-var lookupDictionary = null;
-var registerNewWord = null;
-var recordNewResult = null;
+function Dictionary(dictionary_name) {
+  this.userDict = {};
+  this.systemDict = {};
+  this.initSystemDictionary(dictionary_name);
+}
 
 (function() {
 var dictionary_filename = 'SKK-JISYO.L.gz';
-
-var systemDict = {};
-var userDict = {};
 
 function parseData(data) {
   // Not serious impl -- just check 'concat' function.
@@ -72,7 +70,8 @@ function parseData(data) {
   return result;
 }
 
-function doUpdate(fs) {
+Dictionary.prototype.doUpdate = function(fs) {
+  var self = this;
   var xhr = new XMLHttpRequest();
   xhr.open('GET', 'https://skk-dict-mirror.appspot.com/' + dictionary_filename);
   xhr.onreadystatechange = function() {
@@ -80,52 +79,57 @@ function doUpdate(fs) {
       return;
     }
 
-    systemDict = parseData(xhr.responseText);
+    self.systemDict = parseData(xhr.responseText);
     fs.root.getFile(
       'system-dictionary.json', {create:true}, function(fileEntry) {
         fileEntry.createWriter(function(fileWriter) {
           fileWriter.onwriteend = function(e) {
             var dict_size = 0;
-            for (var w in systemDict) dict_size++;
+            for (var w in self.systemDict) dict_size++;
             console.log(
               {'type':'update_status', 'percent':100, 'words':dict_size});
             };
-            var bb = new WebKitBlobBuilder();
-            bb.append(JSON.stringify(systemDict));
-            fileWriter.write(bb.getBlob('text/plain'));
+            var blob = new Blob([JSON.stringify(self.systemDict)],
+                                {'type': 'text/plain'});
+            fileWriter.write(blob);
           });
         });
     };
   xhr.send();
-}
+};
 
-function syncUserDictionary() {
+Dictionary.prototype.syncUserDictionary = function() {
+  var self = this;
   function onInitFS(fs) {
     fs.root.getFile('user-dictionary.json', {create:true}, function(fileEntry) {
       fileEntry.createWriter(function(fileWriter) {
-        var bb = new WebKitBlobBuilder();
-        bb.append(JSON.stringify(userDict));
-        fileWriter.write(bb.getBlob('text/plain'));
+        var blob = new Blob([JSON.stringify(self.userDict)],
+                            {'type': 'text/plain'});
+        fileWriter.write(blob);
       });
     });
   }
-  var request = self.requestFileSystem || self.webkitRequestFileSystem;
+  var request = window.requestFileSystem || window.webkitRequestFileSystem;
   request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
-}
+};
 
-initSystemDictionary = function(dict_name) {
+Dictionary.prototype.initSystemDictionary = function(dict_name) {
   if (dict_name) {
     dictionary_filename = dict_name;
   }
 
+  var self = this;
   function onInitFS(fs) {
     fs.root.getFile('system-dictionary.json', {}, function(fileEntry) {
       fileEntry.file(function(file) {
         var reader = new FileReader();
         reader.onloadend = function(e) {
-          systemDict = JSON.parse(reader.result);
+          self.systemDict = JSON.parse(reader.result);
+          var dict_size = 0;
+          for (var w in self.systemDict) dict_size++;
           console.log({type:'update_status',
                        message: 'loaded_from_file',
+                       dict_size: dict_size,
                        percent:100});
         };
         reader.onerror = function(e) { doUpdate(fs); };
@@ -136,21 +140,21 @@ initSystemDictionary = function(dict_name) {
       fileEntry.file(function(file) {
         var reader = new FileReader();
         reader.onloadend = function(e) {
-          userDict = JSON.parse(reader.result);
+          this.userDict = JSON.parse(reader.result);
         };
         reader.readAsText(file);
       });
     });
   }
 
-  var request = self.requestFileSystem || self.webkitRequestFileSystem;
+  var request = window.requestFileSystem || window.webkitRequestFileSystem;
   request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
 };
 
-lookupDictionary = function(reading) {
+Dictionary.prototype.lookup = function(reading) {
   var entries = [];
-  var userEntries = userDict[reading] || [];
-  var systemEntries = systemDict[reading] || [];
+  var userEntries = this.userDict[reading] || [];
+  var systemEntries = this.systemDict[reading] || [];
   var word_set = {};
   for (var i = 0; i < userEntries.length; i++) {
     if (!word_set[systemEntries[i].word]) {
@@ -172,17 +176,17 @@ lookupDictionary = function(reading) {
   }
 };
 
-recordNewResult = function(reading, newEntry) {
-  var entries = lookupDictionary(reading);
+Dictionary.prototype.recordNewResult = function(reading, newEntry) {
+  var entries = this.lookup(reading);
 
   // Not necessary to modify the user dictionary if it's already the top.
   if (entries && entries.data[0].word == newEntry.word) {
     return;
   }
 
-  var userEntries = userDict[reading];
+  var userEntries = this.userDict[reading];
   if (userEntries == null) {
-    userDict[reading] = [newEntry];
+    this.userDict[reading] = [newEntry];
   } else {
     var existing_i = -1;
     for (var i = 0; i < userEntries.length; i++) {
@@ -192,12 +196,12 @@ recordNewResult = function(reading, newEntry) {
       }
     }
     if (existing_i >= 0) {
-      userDict[reading].splice(existing_i, 1);
+      this.userDict[reading].splice(existing_i, 1);
     }
-    userDict[reading].unshift(newEntry);
+    this.userDict[reading].unshift(newEntry);
   }
 
-  syncUserDictionary();
+  this.syncUserDictionary();
 };
 
 })();

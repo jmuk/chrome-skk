@@ -1,4 +1,4 @@
-function SKK(engineID) {
+function SKK(engineID, dictionary) {
   this.engineID = engineID;
   this.context = null;
   this.currentMode = 'hiragana';
@@ -9,6 +9,7 @@ function SKK(engineID) {
   this.okuriText = '';
   this.caret = null;
   this.entries = null;
+  this.dictionary = dictionary;
 }
 
 SKK.prototype.commitText = function(text) {
@@ -74,12 +75,8 @@ SKK.prototype.updateCandidates = function() {
   }
 };
 
-SKK.prototype.initDictionary = function() {
-  initSystemDictionary('SKK-JISYO.L.gz');
-};
-
 SKK.prototype.lookup = function(reading, callback) {
-  var result = lookupDictionary(reading);
+  var result = this.dictionary.lookup(reading);
   if (result) {
     callback(result.data);
   } else {
@@ -211,7 +208,7 @@ SKK.prototype.handleKeyEvent = function(keyevent) {
 
 SKK.prototype.createInnerSKK = function() {
   var outer_skk = this;
-  var inner_skk = new SKK(this.engineID);
+  var inner_skk = new SKK(this.engineID, this.dictionary);
   inner_skk.commit_text = '';
   inner_skk.commit_cursor = 0;
   inner_skk.commitText = function(text) {
@@ -288,10 +285,14 @@ SKK.prototype.createInnerSKK = function() {
   outer_skk.inner_skk = inner_skk;
 };
 
+SKK.prototype.recordNewResult = function(entry) {
+  this.dictionary.recordNewResult(this.preedit + this.okuriPrefix, entry);
+};
+
 SKK.prototype.finishInner = function(successfully) {
   if (successfully && this.inner_skk.commit_text.length > 0) {
     var new_word = this.inner_skk.commit_text;
-    recordNewResult(this.preedit + this.okuriPrefix, {word:new_word});
+    this.recordNewResult({word:new_word});
     this.commitText(new_word + this.okuriText);
   }
 
