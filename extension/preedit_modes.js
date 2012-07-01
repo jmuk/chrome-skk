@@ -117,14 +117,14 @@ function okuriPreeditInput(skk, keyevent) {
     skk.preedit = '';
     skk.roman = '';
     skk.switchMode('hiragana');
-    return;
+    return true;
   }
 
   if (keyevent.key == 'Esc') {
     skk.preedit = '';
     skk.roman = '';
     skk.switchMode('hiragana');
-    return;
+    return true;
   }
 
   if (keyevent.key == 'Backspace') {
@@ -133,7 +133,7 @@ function okuriPreeditInput(skk, keyevent) {
       skk.okuriPrefix = '';
       skk.roman = '';
       skk.switchMode('preedit');
-      return;
+      return true;
     }
   }
 
@@ -141,23 +141,26 @@ function okuriPreeditInput(skk, keyevent) {
     skk.okuriText = text;
     skk.switchMode('conversion');
   });
+  return true;
 }
 
 function asciiPreeditInput(skk, keyevent) {
   if (keyevent.key == ' ') {
     skk.switchMode('conversion');
+    return true;
   }
 
   if (preeditKeybind(skk, keyevent)) {
-    return;
+    return true;
   }
 
   if (keyevent.key.length != 1) {
-    return;
+    return true;
   }
 
   skk.preedit += keyevent.key;
   skk.caret++;
+  return true;
 }
 
 SKK.registerImplicitMode('preedit', {

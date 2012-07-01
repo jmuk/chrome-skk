@@ -292,9 +292,13 @@ SKK.prototype.finishInner = function(successfully) {
   this.okuriPrefix = '';
 
   if (successfully) {
+    this.entries = null;
     this.preedit = '';
     this.switchMode('hiragana');
   } else {
+    if (this.previousMode != 'conversion') {
+      this.entries = null;
+    }
     this.switchMode(this.previousMode);
   }
 };
