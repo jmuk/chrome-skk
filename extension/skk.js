@@ -99,7 +99,7 @@ SKK.prototype.processRoman = function (key, table, emitter) {
   if (table[roman]) {
     this.roman = '';
     emitter(table[roman]);
-    return;
+    return true;
   }
 
   if (roman.length > 1 && roman[0] == roman[1]) {
@@ -109,7 +109,7 @@ SKK.prototype.processRoman = function (key, table, emitter) {
 
   if (isStarting(roman, table)) {
     this.roman = roman;
-    return;
+    return true;
   }
 
   if (roman[0] == 'n') {
@@ -119,10 +119,13 @@ SKK.prototype.processRoman = function (key, table, emitter) {
   if (table[key]) {
     this.roman = '';
     emitter(table[key]);
+    return true;
   } else if (isStarting(key, table)) {
     this.roman = key;
+    return true;
   } else {
     this.roman = '';
+    return false;
   }
 };
 

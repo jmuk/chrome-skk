@@ -60,12 +60,13 @@ function conversionMode(skk, keyevent) {
     skk.okuriPrefix = '';
     skk.switchMode('preedit');
   } else {
-    var use_keyevent = (keyevent.key != 'Enter');
+    var is_commit_key = (
+      keyevent.key == 'Enter' || (keyevent.key == 'j' && keyevent.ctrlKey));
     if (skk.entries.index > 2 &&
         (!keyevent.ctrlKey && !keyevent.shiftKey && !keyevent.altKey &&
          'asdfjkl'.indexOf(keyevent.key) >= 0)) {
       skk.entries.index += 'asdfjkl'.indexOf(keyevent.key);
-      use_keyevent = false;
+      is_commit_key = true;
     }
     var entry = skk.entries.entries[skk.entries.index];
     skk.commitText(entry.word + skk.okuriText);
@@ -80,14 +81,12 @@ function conversionMode(skk, keyevent) {
     } else {
       skk.preedit = '';
       skk.switchMode('hiragana');
-      if (use_keyevent) {
+      if (!is_commit_key) {
         return skk.handleKeyEvent(keyevent);
       }
     }
-    return use_keyevent;
   }
 
-  // not reached.
   return true;
 }
 

@@ -42,8 +42,15 @@ function createRomanInput(table) {
         return true;
       }
     }
-    if (keyevent.shiftKey &&
-        keyevent.key >= 'A' && keyevent.key < 'Z') {
+    if ((keyevent.key == 'Esc' ||
+         (keyevent.key == 'g' && keyevent.ctrlKey)) && skk.roman.length > 0) {
+      skk.roman = '';
+      return true;
+    } else if (keyevent.key.length != 1 ||
+               keyevent.ctrlKey || keyevent.altKey) {
+      return false;
+    } else if (keyevent.shiftKey &&
+               keyevent.key >= 'A' && keyevent.key < 'Z') {
       skk.switchMode('preedit');
       skk.processRoman(
         keyevent.key.toLowerCase(), romanTable, function(text) {
@@ -52,20 +59,11 @@ function createRomanInput(table) {
           skk.caret += text.length;
         });
       return true;
-    } else if ((keyevent.key == 'Esc' ||
-                (keyevent.key == 'g' && keyevent.ctrlKey)) &&
-               skk.roman.length > 0) {
-      skk.roman = '';
-      return true;
-    } else if (keyevent.key.length != 1 ||
-               keyevent.ctrlKey || keyevent.altKey) {
-      return false;
     }
 
-    skk.processRoman(keyevent.key, table, function(text) {
+    return skk.processRoman(keyevent.key, table, function(text) {
       skk.commitText(text);
       });
-    return true;
   };
 }
 
