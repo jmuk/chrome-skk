@@ -1,10 +1,14 @@
-(function() {
-var skk;
-var dictionary = new Dictionary();
+var skk_dictionary =new Dictionary('SKK-JISYO.S.gz');
+var skk = null;
 
+(function() {
 chrome.input.ime.onActivate.addListener(function(engineID) {
-  skk = new SKK(engineID, dictionary);
-  var menus = [];
+  skk = new SKK(engineID, skk_dictionary);
+  var menus = [{id:'skk-options',
+                label:'SKK\u306E\u8A2D\u5B9A',
+                style:'check'
+               },
+               {id:'skk-separator', style:'separator'}];
   for (var i = 0; i <skk.primaryModes.length; i++) {
     var modeName = skk.primaryModes[i];
     menus.push({id:'skk-' + modeName,
@@ -28,6 +32,11 @@ chrome.input.ime.onKeyEvent.addListener(function(engineID, keyData) {
 });
 
 chrome.input.ime.onMenuItemActivated.addListener(function(engineID, name) {
+  if (name == 'skk-options') {
+    window.open(chrome.extension.getURL('options.html'));
+    return;
+  }
+
   var modeName = name.slice('skk-'.length);
   skk.switchMode(modeName);
 });

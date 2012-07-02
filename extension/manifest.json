@@ -16,6 +16,7 @@
       "main.js"
     ]
   },
+  "options_page": "options.html",
   "input_components": [
     {
       "name": "SKK",

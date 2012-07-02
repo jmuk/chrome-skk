@@ -1,12 +1,11 @@
 function Dictionary(dictionary_name) {
   this.userDict = {};
   this.systemDict = {};
-  this.initSystemDictionary(dictionary_name);
+  this.dictionary_name = dictionary_name;
+  this.initSystemDictionary();
 }
 
 (function() {
-var dictionary_filename = 'SKK-JISYO.L.gz';
-
 function parseData(data) {
   // Not serious impl -- just check 'concat' function.
   function evalSexp(word) {
@@ -73,7 +72,7 @@ function parseData(data) {
 Dictionary.prototype.doUpdate = function(fs) {
   var self = this;
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://skk-dict-mirror.appspot.com/' + dictionary_filename);
+  xhr.open('GET', 'http://skk-dict-mirror.appspot.com/' + this.dictionary_name);
   xhr.onreadystatechange = function() {
     if (xhr.readyState != 4) {
       return;
@@ -98,6 +97,11 @@ Dictionary.prototype.doUpdate = function(fs) {
   xhr.send();
 };
 
+Dictionary.prototype.reloadSystemDictionary = function() {
+  var request = window.requestFileSystem || window.webkitRequestFileSystem;
+  request(window.TEMPORARY, 50 * 1024 * 1024, this.doUpdate.bind(this));
+};
+
 Dictionary.prototype.syncUserDictionary = function() {
   var self = this;
   function onInitFS(fs) {
@@ -110,14 +114,10 @@ Dictionary.prototype.syncUserDictionary = function() {
     });
   }
   var request = window.requestFileSystem || window.webkitRequestFileSystem;
-  request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
+  request(window.TEMPORARY, 50 * 1024 * 1024, onInitFS);
 };
 
-Dictionary.prototype.initSystemDictionary = function(dict_name) {
-  if (dict_name) {
-    dictionary_filename = dict_name;
-  }
-
+Dictionary.prototype.initSystemDictionary = function() {
   var self = this;
   function onInitFS(fs) {
     fs.root.getFile('system-dictionary.json', {}, function(fileEntry) {
@@ -148,7 +148,7 @@ Dictionary.prototype.initSystemDictionary = function(dict_name) {
   }
 
   var request = window.requestFileSystem || window.webkitRequestFileSystem;
-  request(self.TEMPORARY, 50 * 1024 * 1024, onInitFS);
+  request(window.TEMPORARY, 50 * 1024 * 1024, onInitFS);
 };
 
 Dictionary.prototype.lookup = function(reading) {
