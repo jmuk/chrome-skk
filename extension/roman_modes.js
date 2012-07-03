@@ -50,7 +50,7 @@ function createRomanInput(table) {
                keyevent.ctrlKey || keyevent.altKey) {
       return false;
     } else if (keyevent.shiftKey &&
-               keyevent.key >= 'A' && keyevent.key < 'Z') {
+               keyevent.key >= 'A' && keyevent.key <= 'Z') {
       skk.switchMode('preedit');
       skk.processRoman(
         keyevent.key.toLowerCase(), romanTable, function(text) {

@@ -1,4 +1,4 @@
-var skk_dictionary =new Dictionary('SKK-JISYO.S.gz');
+var skk_dictionary =new Dictionary();
 var skk = null;
 
 (function() {

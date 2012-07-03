@@ -3,6 +3,24 @@ var dictionary_suffixes = ['S', 'M', 'ML', 'L', 'L.unannotated', 'assoc',
                            'itaiji', 'jinmei', 'law', 'mazegaki', 'okinawa',
                            'propernoun'];
 
+function logger(obj) {
+  var div = document.getElementById('reloading_message');
+  div.innerHTML = '';
+  if (obj.status == 'written') {
+    div.style.display = 'none';
+    document.getElementById('system_dictionary_values').disabled = '';
+    document.getElementById('reload_button').disabled = '';
+    return;
+  }
+
+  div.style.display = 'block';
+  div.appendChild(document.createTextNode(obj.status));
+  if (obj.status == 'parsing') {
+    div.appendChild(
+      document.createTextNode(': ' + obj.progress + '/' + obj.total));
+  }
+}
+
 function onload() {
   var bgPage = chrome.extension.getBackgroundPage();
   var current_system_dictionary = bgPage.skk_dictionary.dictionary_name;
@@ -32,17 +50,24 @@ function onload() {
   }
 
   form.appendChild(ul);
+
+  var reload_button = document.getElementById('reload_button');
+
   form.onchange = function() {
     for (var i = 0; i < inputs.length; i++) {
       if (inputs[i].checked) {
-        bgPage.skk_dictionary.dictionary_name = inputs[i].value;
-        bgPage.skk_dictionary.reloadSystemDictionary();
+        bgPage.skk_dictionary.setSystemDictionaryName(inputs[i].value);
+        form.disabled = 'disabled';
+        reload_button.disabled = 'disabled';
+        bgPage.skk_dictionary.reloadSystemDictionary(logger);
       }
     }
   };
 
   document.getElementById('reload_button').onclick = function() {
-    bgPage.skk_dictionary.reloadSystemDictionary();
+    form.disabled = 'disabled';
+    reload_button.disabled = 'disabled';
+    bgPage.skk_dictionary.reloadSystemDictionary(logger);
   };
 }
 

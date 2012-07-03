@@ -1,9 +1,8 @@
 {
-  "name": "ChromeOS SKK",
-  "version": "0.1",
+  "name": "SKK Japanese Input",
+  "version": "0.1.2",
   "manifest_version": 2,
   "description": "SKK implementation for ChromeOS Input Method API",
-  // "icons":
   "background": {
     "scripts": [
       "skk.js",

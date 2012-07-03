@@ -1,12 +1,16 @@
-function Dictionary(dictionary_name) {
+function Dictionary() {
   this.userDict = {};
   this.systemDict = {};
-  this.dictionary_name = dictionary_name;
+  this.dictionary_name = 'SKK-JISYO.S.gz';
+  if (localStorage.getItem('system-dictionary-name')) {
+    this.dictionary_name = localStorage.getItem('system-dictionary-name');
+  }
+  this.logger = null;
   this.initSystemDictionary();
 }
 
 (function() {
-function parseData(data) {
+Dictionary.prototype.parseData = function(data) {
   // Not serious impl -- just check 'concat' function.
   function evalSexp(word) {
     if (word.indexOf('(concat ') != 0 || word[word.length - 1] != ')') {
@@ -64,42 +68,62 @@ function parseData(data) {
         entries.push(parseEntry(entries_string[j]));
       }
     }
+    if (i % 1000 == 0) {
+      this.log({'status':'parsing', 'progress':i, 'total':lines.length});
+    }
     result[reading] = entries;
   }
   return result;
 }
 
+Dictionary.prototype.log = function(obj) {
+  console.log(obj);
+  if (this.logger) {
+    this.logger(obj);
+  }
+};
+
 Dictionary.prototype.doUpdate = function(fs) {
   var self = this;
   var xhr = new XMLHttpRequest();
   xhr.open('GET', 'http://skk-dict-mirror.appspot.com/' + this.dictionary_name);
+  self.log({status:'loading'});
   xhr.onreadystatechange = function() {
     if (xhr.readyState != 4) {
       return;
     }
 
-    self.systemDict = parseData(xhr.responseText);
+    self.log({status:'loaded'});
+
+    self.systemDict = self.parseData(xhr.responseText);
+    self.log({'status':'parsed'});
     fs.root.getFile(
       'system-dictionary.json', {create:true}, function(fileEntry) {
         fileEntry.createWriter(function(fileWriter) {
           fileWriter.onwriteend = function(e) {
             var dict_size = 0;
             for (var w in self.systemDict) dict_size++;
-            console.log(
-              {'type':'update_status', 'percent':100, 'words':dict_size});
-            };
-            var blob = new Blob([JSON.stringify(self.systemDict)],
-                                {'type': 'text/plain'});
-            fileWriter.write(blob);
-          });
+            self.log({'status':'written'});
+            self.logger = null;
+          };
+          var blob = new Blob([JSON.stringify(self.systemDict)],
+                              {'type': 'text/plain'});
+          fileWriter.write(blob);
         });
+      });
     };
   xhr.send();
 };
 
-Dictionary.prototype.reloadSystemDictionary = function() {
+Dictionary.prototype.reloadSystemDictionary = function(logger) {
+  this.logger = logger;
   var request = window.requestFileSystem || window.webkitRequestFileSystem;
   request(window.TEMPORARY, 50 * 1024 * 1024, this.doUpdate.bind(this));
+};
+
+Dictionary.prototype.setSystemDictionaryName = function(dictionary_name) {
+  localStorage.setItem('system-dictionary-name', dictionary_name);
+  this.dictionary_name = dictionary_name;
 };
 
 Dictionary.prototype.syncUserDictionary = function() {
@@ -127,10 +151,8 @@ Dictionary.prototype.initSystemDictionary = function() {
           self.systemDict = JSON.parse(reader.result);
           var dict_size = 0;
           for (var w in self.systemDict) dict_size++;
-          console.log({type:'update_status',
-                       message: 'loaded_from_file',
-                       dict_size: dict_size,
-                       percent:100});
+          self.log({'status':'loaded_from_file',
+                    dict_size: dict_size});
         };
         reader.onerror = function(e) { doUpdate(fs); };
         reader.readAsText(file);
