@@ -97,15 +97,20 @@ function preeditInput(skk, keyevent) {
     return true;
   }
 
-  skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
-    skk.preedit = skk.preedit.slice(0, skk.caret) +
-      text + skk.preedit.slice(skk.caret);
-    skk.caret += text.length;
-  });
+  var processed =
+    skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
+      skk.preedit = skk.preedit.slice(0, skk.caret) +
+        text + skk.preedit.slice(skk.caret);
+      skk.caret += text.length;
+    });
 
-  if (keyevent.key == '>') {
+  if (skk.preedit.length > 0 && keyevent.key == '>') {
     skk.roman = '';
     skk.switchMode('conversion');
+  } else if (!processed) {
+    skk.preedit = skk.preedit.slice(0, skk.caret) +
+      keyevent.key + skk.preedit.slice(skk.caret);
+    skk.caret += text.length;
   }
   return true;
 }

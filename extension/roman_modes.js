@@ -18,29 +18,32 @@ function createRomanInput(table) {
       return true;
     }
 
-    if (skk.roman.length == 0) {
-      if (keyevent.key == 'q') {
-        skk.roman = '';
-        skk.switchMode(
-          (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
-        return true;
-      } else if (keyevent.key == 'Q') {
-        skk.roman = '';
-        skk.switchMode('preedit');
-        return true;
-      } else if (keyevent.key == 'l') {
-        skk.roman = '';
-        skk.switchMode('ascii');
-        return true;
-      } else if (keyevent.key == 'L') {
-        skk.roman = '';
-        skk.switchMode('full-ascii');
-        return true;
-      } else if (keyevent.key == '/') {
-        skk.roman = '';
-        skk.switchMode('ascii-preedit');
-        return true;
-      }
+    if (keyevent.key == 'q') {
+      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      skk.roman = '';
+      skk.switchMode(
+        (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
+      return true;
+    } else if (keyevent.key == 'Q') {
+      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      skk.roman = '';
+      skk.switchMode('preedit');
+      return true;
+    } else if (keyevent.key == 'l') {
+      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      skk.roman = '';
+      skk.switchMode('ascii');
+      return true;
+    } else if (keyevent.key == 'L') {
+      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      skk.roman = '';
+      skk.switchMode('full-ascii');
+      return true;
+    } else if (keyevent.key == '/') {
+      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      skk.roman = '';
+      skk.switchMode('ascii-preedit');
+      return true;
     }
     if ((keyevent.key == 'Esc' ||
          (keyevent.key == 'g' && keyevent.ctrlKey)) && skk.roman.length > 0) {
@@ -61,9 +64,7 @@ function createRomanInput(table) {
       return true;
     }
 
-    return skk.processRoman(keyevent.key, table, function(text) {
-      skk.commitText(text);
-      });
+    return skk.processRoman(keyevent.key, table, skk.commitText.bind(skk));
   };
 }
 
