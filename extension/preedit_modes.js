@@ -97,8 +97,8 @@ function preeditInput(skk, keyevent) {
     return true;
   }
 
-  var processed =
-    skk.processRoman(keyevent.key.toLowerCase(), romanTable, function(text) {
+  var processed = skk.processRoman(keyevent.key.toLowerCase(), romanTable,
+                                   function(text) {
       skk.preedit = skk.preedit.slice(0, skk.caret) +
         text + skk.preedit.slice(skk.caret);
       skk.caret += text.length;
@@ -106,11 +106,13 @@ function preeditInput(skk, keyevent) {
 
   if (skk.preedit.length > 0 && keyevent.key == '>') {
     skk.roman = '';
+    skk.preedit += '>';
     skk.switchMode('conversion');
   } else if (!processed) {
+    console.log(keyevent);
     skk.preedit = skk.preedit.slice(0, skk.caret) +
       keyevent.key + skk.preedit.slice(skk.caret);
-    skk.caret += text.length;
+    skk.caret += keyevent.key.length;
   }
   return true;
 }

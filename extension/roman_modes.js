@@ -19,28 +19,38 @@ function createRomanInput(table) {
     }
 
     if (keyevent.key == 'q') {
-      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      if (skk.roman == 'n') {
+        skk.commitText(table['nn']);
+      }
       skk.roman = '';
       skk.switchMode(
         (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
       return true;
     } else if (keyevent.key == 'Q') {
-      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      if (skk.roman == 'n') {
+        skk.commitText(table['nn']);
+      }
       skk.roman = '';
       skk.switchMode('preedit');
       return true;
     } else if (keyevent.key == 'l') {
-      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      if (skk.roman == 'n') {
+        skk.commitText(table['nn']);
+      }
       skk.roman = '';
       skk.switchMode('ascii');
       return true;
     } else if (keyevent.key == 'L') {
-      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      if (skk.roman == 'n') {
+        skk.commitText(table['nn']);
+      }
       skk.roman = '';
       skk.switchMode('full-ascii');
       return true;
     } else if (keyevent.key == '/') {
-      skk.processRoman('', romanTable, skk.commitText.bind(skk));
+      if (skk.roman == 'n') {
+        skk.commitText(table['nn']);
+      }
       skk.roman = '';
       skk.switchMode('ascii-preedit');
       return true;
