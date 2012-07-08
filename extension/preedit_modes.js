@@ -79,19 +79,22 @@ function preeditInput(skk, keyevent) {
 
   if (skk.preedit.length > 0 &&
       keyevent.shiftKey && 'A' <= keyevent.key && keyevent.key <= 'Z') {
-    skk.okuriPrefix =
-      (skk.roman.length > 0) ? skk.roman[0] : keyevent.key.toLowerCase();
-    skk.processRoman(
-      keyevent.key.toLowerCase(), romanTable, function(text) {
+    var key = keyevent.key.toLowerCase();
+    var okuriPrefix = (skk.roman.length > 0) ? skk.roman[0] : key;
+    skk.processRoman(key, romanTable, function(text) {
         if (skk.roman.length > 0) {
           skk.preedit += text;
           skk.caret += text.length;
         } else {
+          skk.okuriPrefix = okuriPrefix;
           skk.okuriText = text;
           skk.switchMode('conversion');
         }
       });
     if (skk.currentMode == 'preedit') {
+      // We should re-calculate the okuriPrefix since the 'roman' can be
+      // changed during processRoman -- such like 'KanJi' pattern.
+      skk.okuriPrefix = (skk.roman.length > 0) ? skk.roman[0] : key;
       skk.switchMode('okuri-preedit');
     }
     return true;
