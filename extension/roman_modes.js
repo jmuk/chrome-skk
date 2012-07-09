@@ -18,50 +18,44 @@ function createRomanInput(table) {
       return true;
     }
 
-    if (keyevent.key == 'q') {
-      if (skk.roman == 'n') {
-        skk.commitText(table['nn']);
-      }
+    if ((keyevent.key == 'Esc' ||
+        (keyevent.key == 'g' && keyevent.ctrlKey)) && skk.roman.length > 0) {
       skk.roman = '';
-      skk.switchMode(
-        (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
-      return true;
-    } else if (keyevent.key == 'Q') {
-      if (skk.roman == 'n') {
-        skk.commitText(table['nn']);
-      }
-      skk.roman = '';
-      skk.switchMode('preedit');
-      return true;
-    } else if (keyevent.key == 'l') {
-      if (skk.roman == 'n') {
-        skk.commitText(table['nn']);
-      }
-      skk.roman = '';
-      skk.switchMode('ascii');
-      return true;
-    } else if (keyevent.key == 'L') {
-      if (skk.roman == 'n') {
-        skk.commitText(table['nn']);
-      }
-      skk.roman = '';
-      skk.switchMode('full-ascii');
-      return true;
-    } else if (keyevent.key == '/') {
-      if (skk.roman == 'n') {
-        skk.commitText(table['nn']);
-      }
-      skk.roman = '';
-      skk.switchMode('ascii-preedit');
       return true;
     }
-    if ((keyevent.key == 'Esc' ||
-         (keyevent.key == 'g' && keyevent.ctrlKey)) && skk.roman.length > 0) {
-      skk.roman = '';
-      return true;
-    } else if (keyevent.key.length != 1 ||
-               keyevent.ctrlKey || keyevent.altKey) {
+
+    if (keyevent.key.length != 1 || keyevent.ctrlKey || keyevent.altKey) {
       return false;
+    }
+
+    if (!keyevent.shiftKey) {
+      if (skk.processRoman(keyevent.key, table, skk.commitText.bind(skk))) {
+        return true;
+      }
+
+      if (keyevent.key == 'q') {
+        skk.switchMode(
+          (skk.currentMode == 'hiragana') ? 'katakana' : 'hiragana');
+        return true;
+      }
+      if (keyevent.key == 'l') {
+        skk.switchMode('ascii');
+        return true;
+      }
+
+      if (keyevent.key == '/') {
+        skk.switchMode('ascii-preedit');
+        return true;
+      }
+    } else if (keyevent.key == 'Q') {
+      console.log('here');
+      skk.processRoman(keyevent.key, table, skk.commitText.bind(skk));
+      skk.switchMode('preedit');
+      return true;
+    } else if (keyevent.key == 'L') {
+      skk.processRoman(keyevent.key, table, skk.commitText.bind(skk));
+      skk.switchMode('full-ascii');
+      return true;
     } else if (keyevent.shiftKey &&
                keyevent.key >= 'A' && keyevent.key <= 'Z') {
       skk.switchMode('preedit');
@@ -74,7 +68,7 @@ function createRomanInput(table) {
       return true;
     }
 
-    return skk.processRoman(keyevent.key, table, skk.commitText.bind(skk));
+    return false;
   };
 }
 
