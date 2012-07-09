@@ -206,7 +206,7 @@ function setMenuItems(obj) {
 }
 
 function updateMenuItems(obj) {
-  var items = (items instanceof Array) ? obj.items : [obj.items];
+  var items = (obj.items instanceof Array) ? obj.items : [obj.items];
 
   for (var i = 0; i < items.length; i++) {
     var item = document.getElementById('menu-item-' + items[i].id);
