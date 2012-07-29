@@ -208,21 +208,17 @@ SKK.registerImplicitMode('ascii-preedit', {
 });
 
 function kanaTurnOver(str) {
-  console.log("str:" + str);
   var turnedOverStr = '';
   for (var i = 0; i < str.length; i++) {
     var c = str.charCodeAt(i);
-    console.log("C:" + c);
-    if (c > 0x3040 && c < 0x30a0) {
+    if (c > 0x3040 && c < 0x3097) {
       turnedOverStr += String.fromCharCode(c + 0x60);
-    } else if (c > 0x30a0 && c < 0x30ff) {
+    } else if (c > 0x30a0 && c < 0x30f7) {
       turnedOverStr += String.fromCharCode(c - 0x60);
     } else {
       turnedOverStr += String.fromCharCode(c);
     }
-    console.log("TOS:" + turnedOverStr);
   }
-  console.log("STR:" + turnedOverStr);
   return turnedOverStr;
 }
 })();
