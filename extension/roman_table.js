@@ -32,7 +32,7 @@ var katakanaTable = {};
 
 (function() {
 function initRomanTable() {
-  var youons = ['c', 'k', 's', 't', 'n', 'h', 'm', 'r', 'g', 'd', 'b', 'p'];
+  var youons = ['c', 'k', 's', 't', 'n', 'h', 'm', 'r', 'g', 'd', 'b', 'p', 'z'];
   function addYouon(youon, prefix, base) {
     var mapping = {a:'\u3083', i:'\u3043', u:'\u3085',
                    e:'\u3047', o:'\u3087'};
