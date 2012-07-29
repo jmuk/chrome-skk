@@ -55,6 +55,13 @@ function preeditKeybind(skk, keyevent) {
     return true;
   }
 
+  if (keyevent.key == 'q') {
+    skk.commitText(kanaTurnOver(skk.preedit));
+    skk.preedit = '';
+    skk.roman = '';
+    skk.switchMode('hiragana');
+    return true;
+  }
   return false;
 }
 
@@ -199,4 +206,23 @@ SKK.registerImplicitMode('ascii-preedit', {
   compositionHandler: updateComposition,
   initHandler: initPreedit
 });
+
+function kanaTurnOver(str) {
+  console.log("str:" + str);
+  var turnedOverStr = '';
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    console.log("C:" + c);
+    if (c > 0x3040 && c < 0x30a0) {
+      turnedOverStr += String.fromCharCode(c + 0x60);
+    } else if (c > 0x30a0 && c < 0x30ff) {
+      turnedOverStr += String.fromCharCode(c - 0x60);
+    } else {
+      turnedOverStr += String.fromCharCode(c);
+    }
+    console.log("TOS:" + turnedOverStr);
+  }
+  console.log("STR:" + turnedOverStr);
+  return turnedOverStr;
+}
 })();
