@@ -55,6 +55,13 @@ function preeditKeybind(skk, keyevent) {
     return true;
   }
 
+  if (keyevent.key == 'q') {
+    skk.commitText(kanaTurnOver(skk.preedit));
+    skk.preedit = '';
+    skk.roman = '';
+    skk.switchMode('hiragana');
+    return true;
+  }
   return false;
 }
 
@@ -80,6 +87,9 @@ function preeditInput(skk, keyevent) {
   if (skk.preedit.length > 0 &&
       keyevent.shiftKey && 'A' <= keyevent.key && keyevent.key <= 'Z') {
     var key = keyevent.key.toLowerCase();
+    if (key == 'c') {
+      key = 'k';
+    }
     var okuriPrefix = (skk.roman.length > 0) ? skk.roman[0] : key;
     skk.processRoman(key, romanTable, function(text) {
         if (skk.roman.length > 0) {
@@ -199,4 +209,19 @@ SKK.registerImplicitMode('ascii-preedit', {
   compositionHandler: updateComposition,
   initHandler: initPreedit
 });
+
+function kanaTurnOver(str) {
+  var turnedOverStr = '';
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    if (c > 0x3040 && c < 0x3097) {
+      turnedOverStr += String.fromCharCode(c + 0x60);
+    } else if (c > 0x30a0 && c < 0x30f7) {
+      turnedOverStr += String.fromCharCode(c - 0x60);
+    } else {
+      turnedOverStr += String.fromCharCode(c);
+    }
+  }
+  return turnedOverStr;
+}
 })();
