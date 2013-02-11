@@ -154,10 +154,10 @@ Dictionary.prototype.initSystemDictionary = function() {
           self.log({'status':'loaded_from_file',
                     dict_size: dict_size});
         };
-        reader.onerror = function(e) { doUpdate(fs); };
+        reader.onerror = function(e) { self.doUpdate(fs); };
         reader.readAsText(file);
-      }, function() { doUpdate(fs); });
-    }, function() { doUpdate(fs); });
+      }, function() { self.doUpdate(fs); });
+    }, function() { self.doUpdate(fs); });
     fs.root.getFile('user-dictionary.json', {}, function(fileEntry) {
       fileEntry.file(function(file) {
         var reader = new FileReader();
