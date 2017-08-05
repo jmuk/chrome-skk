@@ -18,12 +18,26 @@
   "options_page": "options.html",
   "input_components": [
     {
-      "name": "SKK",
+      "name": "SKK(for US keyboard)",
       "type": "ime",
-      "id": "org.jmuk.skk",
+      "id": "org.jmuk.skk.us",
       "description": "An SKK clone",
       "language": "ja",
-      "layouts": ["jp::jpn", "us"]
+      "layouts": ["us"]
+    },{
+      "name": "SKK(for Japanese keyboard)",
+      "type": "ime",
+      "id": "org.jmuk.skk.jp",
+      "description": "An SKK clone",
+      "language": "ja",
+      "layouts": ["jp"]
+    },{
+      "name": "SKK(for Dvorak keyboard)",
+      "type": "ime",
+      "id": "org.jmuk.skk.dvorak",
+      "description": "An SKK clone",
+      "language": "ja",
+      "layouts": ["us-dvorak"]
     }
   ],
   "permissions": [
