@@ -179,7 +179,7 @@ Dictionary.prototype.lookup = function(reading) {
   var systemEntries = this.systemDict[reading] || [];
   var word_set = {};
   for (var i = 0; i < userEntries.length; i++) {
-    if (!word_set[systemEntries[i].word]) {
+    if (!word_set[userEntries[i].word]) {
       entries.push(userEntries[i]);
       word_set[userEntries[i].word] = true;
     }
