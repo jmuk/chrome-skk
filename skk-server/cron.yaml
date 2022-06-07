@@ -1,4 +1,0 @@
-cron:
-- description: check dictionary update
-  url: /start-fetch-task
-  schedule: every 24 hours
